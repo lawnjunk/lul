@@ -6,21 +6,18 @@
 
 #define line_t struct line
 
-#undef this
-#define this line_t *self
 struct line {
-  chtype *buffer;
+  char *buffer;
   int length;
   int next;
-  chtype (*to_string)(this);
-  bool (*write)(this, int offset, char *input);
-  bool (*insert)(this, int offset, char *input);
-  bool (*delete)(this, int offset, int count);
-  bool (*replace)(this, int offset, char *input);
 };
-#undef this
 
 // default line_t width is 256ch
-line_t *new_line(void)
+line_t *line_new(void);
+char *line_to_string(line_t *line);
+int line_write(line_t *line, char *input);
+int line_insert(line_t *line, int offset, char *input);
+int line_delete(line_t *line, int offset, int count);
+int line_replace(line_t *line, int offset, char *input);
 
 #endif

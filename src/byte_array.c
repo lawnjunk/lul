@@ -32,7 +32,7 @@ make_read8(read_int8, int8_t);
 // return false on fail
 // return true on success
 #define make_write8(name, type) \
-  bool name(byte_array_t *self, type value, size_t offset){ \
+  boolean name(byte_array_t *self, type value, size_t offset){ \
     if(offset > self->length) \
     return false; \
     type *nums = (type *) self->buffer; \
@@ -58,7 +58,7 @@ make_read16(read_uint16_BE, uint16_t, BE);
 make_read16(read_int16_BE, int16_t, BE);
 
 #define write_int16(name, type, endianness) \
-  bool name(byte_array_t *self, type value, size_t offset){ \
+  boolean name(byte_array_t *self, type value, size_t offset){ \
     if(offset > self->length) \
     return false;  \
     uint8_t *nums = (uint8_t *) self->buffer; \
@@ -89,7 +89,7 @@ read_int32(read_int32_BE, int32_t, BE);
 // TODO: REPLACE the ternery endianness check with some pre-procesor haxs
 // to not add checks at runtime!
 #define make_write32(name, type, endianness) \
-  bool name(byte_array_t *self, type value, size_t offset){ \
+  boolean name(byte_array_t *self, type value, size_t offset){ \
     if(offset > self->length) \
     return false; \
     uint8_t *nums = (uint8_t *) self->buffer; \
