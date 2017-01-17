@@ -1,9 +1,17 @@
+P = main
 CFLAGS = -Wall -g
-LIBS = -lncurses
+INCLUDE = -I $(PWD)/src
+OBJECTS = $(PWD)/src/*.c
+LDFLAGS =  -L $(PWD)/src
+LDLIBS = -lncurses -lgc
+CC = clang
 
-all: 
-	clang ${CFLAGS} main.c ${LIBS} -o lul && ./lul
+$(P):
+	$(CC) $(CFLAGS) $(INCLUDE) $(LDFLAGS) -o $@  $@.c $(OBJECTS) $(LDLIBS)
 
-debug:
-	clang ${CFLAGS} main.c ${LIBS} -o lul
+#all: 
+	#clang ${CFLAGS} ${INCLUDE} main.c  -o lul ${OBJECTS} ${LIBS} && ./lul
+
+debug: 
+	clang ${CFLAGS} ${INCLUDE} main.c  -o lul ${OBJECTS} ${LIBS} 
 
