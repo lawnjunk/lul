@@ -1,4 +1,3 @@
-#include "tools.h"
 #include "lerr.h"
 #include "buffer.h"
 
@@ -74,19 +73,23 @@ make_read16(buffer_read_int16_BE, int16_t, BE);
 /*write_int16(write_uint16_BE, uint16_t, BE);*/
 /*write_int16(write_int16_BE, int16_t, BE);*/
 
-/*#define read_int32(name, type, endianness) \*/
-  /*type name(buffer_t *self, size_t offset){ \*/
-    /*uint8_t *nums = (uint8_t *) self->data; \*/
-    /*type result =            nums[offset + (endianness == LE ? 3 : 0)]; \*/
-    /*result = (result << 8) | nums[offset + (endianness == LE ? 2 : 1)]; \*/
-    /*result = (result << 8) | nums[offset + (endianness == LE ? 1 : 2)]; \*/
-    /*return   (result << 8) | nums[offset + (endianness == LE ? 0 : 3)]; \*/
-  /*}*/
+#define read_int32(name, type, endianness) \
+  type name(buffer_t *self, size_t offset){ \
+    uint8_t *nums = (uint8_t *) self->data; \
+    if(offset > self->length - 4){\
+      err_trouble_on(self->err, "access out of bounds");\
+      offset = self->length - 4;\
+    }\
+    type result =            nums[offset + (endianness == LE ? 3 : 0)]; \
+    result = (result << 8) | nums[offset + (endianness == LE ? 2 : 1)]; \
+    result = (result << 8) | nums[offset + (endianness == LE ? 1 : 2)]; \
+    return   (result << 8) | nums[offset + (endianness == LE ? 0 : 3)]; \
+  }
 
-/*read_int32(read_uint32_LE, uint32_t, LE);*/
-/*read_int32(read_int32_LE, int32_t, LE);*/
-/*read_int32(read_uint32_BE, uint32_t, BE);*/
-/*read_int32(read_int32_BE, int32_t, BE);*/
+read_int32(buffer_read_uint32_LE, uint32_t, LE);
+read_int32(buffer_read_int32_LE, int32_t, LE);
+read_int32(buffer_read_uint32_BE, uint32_t, BE);
+read_int32(buffer_read_int32_BE, int32_t, BE);
 
 /*// TODO: REPLACE the ternery endianness check with some pre-procesor haxs*/
 /*// to not add checks at runtime!*/

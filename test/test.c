@@ -274,6 +274,101 @@ MU_TEST(buffer_t_test) {
     buffer_free(buf);
   }
 
+  describe("TEST buffer_read_uint32_LE"){
+    buffer_t *buf = buffer_create(5);
+    buf->data[0] = 0xff;
+    buf->data[1] = 0xee;
+    buf->data[2] = 0xaa;
+    buf->data[3] = 0xdd;
+    buf->data[4] = 0x77;
+
+    uint32_t result;
+    result = buffer_read_uint32_LE(buf, 0);
+    should("result should equal 0xddaaeeff", equal_uint32(result, 0xddaaeeff));
+    should("buf should not be evil", !buffer_is_evil(buf));
+
+    result = buffer_read_uint32_LE(buf, 1);
+    should("result should equal 0x77ddaaee", equal_uint32(result, 0x77ddaaee));
+    should("buf should not be evil", !buffer_is_evil(buf));
+
+    result = buffer_read_uint32_LE(buf, 2);
+    should("result should equal 0x77ddaaee", equal_uint32(result, 0x77ddaaee));
+    should("buf should be evil", buffer_is_evil(buf));
+
+    buffer_free(buf);
+  }
+
+  describe("TEST buffer_read_int32_LE"){
+    buffer_t *buf = buffer_create(5);
+    buf->data[0] = 0xff;
+    buf->data[1] = 0xee;
+    buf->data[2] = 0xaa;
+    buf->data[3] = 0xdd;
+    buf->data[4] = 0x77;
+
+    int32_t result;
+    result = buffer_read_int32_LE(buf, 0);
+    should("result should equal 0xddaaeeff", equal_int32(result, 0xddaaeeff));
+    should("buf should not be evil", !buffer_is_evil(buf));
+
+    result = buffer_read_int32_LE(buf, 1);
+    should("result should equal 0x77ddaaee", equal_int32(result, 0x77ddaaee));
+    should("buf should not be evil", !buffer_is_evil(buf));
+
+    result = buffer_read_int32_LE(buf, 2);
+    should("result should equal 0x77ddaaee", equal_int32(result, 0x77ddaaee));
+    should("buf should be evil", buffer_is_evil(buf));
+
+    buffer_free(buf);
+  }
+
+  describe("TEST buffer_read_uint32_BE"){
+    buffer_t *buf = buffer_create(5);
+    buf->data[0] = 0xff;
+    buf->data[1] = 0xee;
+    buf->data[2] = 0xaa;
+    buf->data[3] = 0xdd;
+    buf->data[4] = 0x77;
+
+    uint32_t result;
+    result = buffer_read_uint32_BE(buf, 0);
+    should("result should equal 0xffeeaadd", equal_uint32(result, 0xffeeaadd));
+    should("buf should not be evil", !buffer_is_evil(buf));
+
+    result = buffer_read_uint32_BE(buf, 1);
+    should("result should equal 0xeeaadd77", equal_uint32(result, 0xeeaadd77));
+    should("buf should not be evil", !buffer_is_evil(buf));
+
+    result = buffer_read_uint32_BE(buf, 2);
+    should("result should equal 0xeeaadd77", equal_uint32(result, 0xeeaadd77));
+    should("buf should be evil", buffer_is_evil(buf));
+
+    buffer_free(buf);
+  }
+
+  describe("TEST buffer_read_int32_BE"){
+    buffer_t *buf = buffer_create(5);
+    buf->data[0] = 0xff;
+    buf->data[1] = 0xee;
+    buf->data[2] = 0xaa;
+    buf->data[3] = 0xdd;
+    buf->data[4] = 0x77;
+
+    int32_t result;
+    result = buffer_read_int32_BE(buf, 0);
+    should("result should equal 0xffeeaadd", equal_int32(result, 0xffeeaadd));
+    should("buf should not be evil", !buffer_is_evil(buf));
+
+    result = buffer_read_int32_BE(buf, 1);
+    should("result should equal 0xeeaadd77", equal_int32(result, 0xeeaadd77));
+    should("buf should not be evil", !buffer_is_evil(buf));
+
+    result = buffer_read_int32_BE(buf, 2);
+    should("result should equal 0xeeaadd77", equal_int32(result, 0xeeaadd77));
+    should("buf should be evil", buffer_is_evil(buf));
+
+    buffer_free(buf);
+  }
 }
 
 MU_TEST_SUITE(test_suite) {
