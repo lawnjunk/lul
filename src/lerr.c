@@ -18,7 +18,8 @@ bool err_is_evil(lerr_t *err){
   return err->trouble;
 }
 
-lerr_t *err_trouble_on(lerr_t *err){
+lerr_t *err_trouble_on(lerr_t *err, char *msg){
+  err->msg = msg;
   err->trouble = true;
   return err;
 };

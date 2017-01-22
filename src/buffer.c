@@ -1,42 +1,45 @@
 #include "tools.h"
+#include "lerr.h"
 #include "buffer.h"
 
-/*typedef enum {*/
-  /*LE,*/
-  /*BE,*/
-/*} buffer_endian;*/
+typedef enum {
+  LE,
+  BE,
+} buffer_endian;
 
 /*// type decliations for functions that are used out of order*/
 /*buffer_t *slice(buffer_t *self, size_t start, size_t end);*/
 
-/*// make_read8 creates a functions for reading 8bit*/
-/*// signed and unsinged ints, at a size_t offset*/
-/*// return type (type)*/
-/*#define make_read8(name, type) \*/
-  /*type name(buffer_t *self, size_t offset){ \*/
-    /*type *nums = (type *) self->data; \*/
-    /*return nums[offset]; \*/
-  /*}*/
+// make_read8 creates a functions for reading 8bit
+// signed and unsinged ints, at a size_t offset
+// return type (type)
+#define make_read8(name, type) \
+  type name(buffer_t *self, size_t offset){ \
+    type *nums = (type *) self->data; \
+    return nums[offset]; \
+  }
 
-/*make_read8(read_uint8, uint8_t);*/
-/*make_read8(read_int8, int8_t);*/
+make_read8(buffer_read_uint8, uint8_t);
+make_read8(buffer_read_int8, int8_t);
 
 /*// make_write8 creates functions for writing a signed*/
 /*// or unsigned 8bit int, at a size_t offse*/
 /*// return type int*/
 /*// return false on fail*/
 /*// return true on success*/
-/*#define make_write8(name, type) \*/
-  /*boolean name(buffer_t *self, type value, size_t offset){ \*/
-    /*if(offset > self->length) \*/
-    /*return false; \*/
-    /*type *nums = (type *) self->data; \*/
-    /*nums[offset] = value; \*/
-    /*return true; \*/
-  /*}*/
+#define make_write8(name, type) \
+  buffer_t *name(buffer_t *buf, type value, size_t offset){ \
+    if(offset > buf->length){\
+      err_trouble_on(buf->err, "write attempt out of bounds");\
+      return buf;\
+    }\
+    type *nums = (type *) buf->data; \
+    nums[offset] = value; \
+    return buf; \
+  }
 
-/*make_write8(write_uint8, uint8_t);*/
-/*make_write8(write_int8, int8_t);*/
+make_write8(buffer_write_uint8, uint8_t);
+make_write8(buffer_write_int8, int8_t);
 
 /*#define make_read16(name, type, endianness) \*/
   /*type name(buffer_t *self, size_t offset){ \*/
@@ -217,6 +220,7 @@ buffer_t *buffer_create(size_t length){
   buffer_t *result = malloc(sizeof(buffer_t));
   result->data = malloc(sizeof(uint8_t) * length);
   result->length = length;
+  result->err = err_create("generic buffer error"); // TODO: refacort msgs to macros
   return result;
 }
 
@@ -225,6 +229,10 @@ buffer_t *buffer_free(buffer_t *buf){
   free(buf);
   buf = NULL;
   return buf;
+}
+
+bool buffer_is_evil(buffer_t *buf){
+  return err_is_evil(buf->err);
 }
 
 buffer_t *buffer_from_file(FILE *infile){

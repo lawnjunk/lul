@@ -12,38 +12,39 @@ typedef struct {
 
 // uint8
 uint8_t buffer_read_uint8(buffer_t *buf, size_t offset);
-bool buffer_write_uint8(buffer_t *buf, uint8_t value, size_t offset);
+buffer_t *buffer_write_uint8(buffer_t *buf, uint8_t value, size_t offset);
 // int8
 int8_t buffer_read_int8(buffer_t *buf, size_t offset);
-bool buffer_write_int8(buffer_t *buf, int8_t value, size_t offset);
+buffer_t *buffer_write_int8(buffer_t *buf, int8_t value, size_t offset);
 
 // uint16 LE
 uint16_t buffer_read_uint16_LE(buffer_t *buf, size_t offset);
-bool buffer_write_uint16_LE(buffer_t *buf, uint16_t value, size_t offset);
+buffer_t *buffer_write_uint16_LE(buffer_t *buf, uint16_t value, size_t offset);
 // uint16 BE
 uint16_t buffer_read_uint16_BE(buffer_t *buf, size_t offset);
-bool buffer_write_uint16_BE(buffer_t *buf, uint16_t value, size_t offset);
+buffer_t *buffer_write_uint16_BE(buffer_t *buf, uint16_t value, size_t offset);
 
 // int16 LE
 int16_t buffer_read_int16_LE(buffer_t *buf, size_t offset);
-bool buffer_write_int16_LE(buffer_t *buf, int16_t value, size_t offset);
+buffer_t *buffer_write_int16_LE(buffer_t *buf, int16_t value, size_t offset);
 // int16 BE
 int16_t buffer_read_int16_BE(buffer_t *buf, size_t offset);
-bool buffer_write_int16_BE(buffer_t *buf, int16_t value, size_t offset);
+buffer_t *buffer_write_int16_BE(buffer_t *buf, int16_t value, size_t offset);
 
 // uint32 LE
 uint32_t buffer_read_uint32_LE(buffer_t *buf, size_t offset);
-bool buffer_write_uint32_LE(buffer_t *buf, uint32_t value, size_t offset);
+buffer_t *buffer_write_uint32_LE(buffer_t *buf, uint32_t value, size_t offset);
+
 // uint32 BE
 uint32_t buffer_read_uint32_BE(buffer_t *buf, size_t offset);
-bool buffer_write_uint32_BE(buffer_t *buf, uint32_t value, size_t offset);
+buffer_t *buffer_write_uint32_BE(buffer_t *buf, uint32_t value, size_t offset);
 
 //int32 LE
 int32_t buffer_read_int32_LE(buffer_t *buf, size_t offset);
-bool buffer_write_int32_LE(buffer_t *buf, int32_t value, size_t offset);
+buffer_t *buffer_write_int32_LE(buffer_t *buf, int32_t value, size_t offset);
 //in32 BE
 int32_t buffer_read_int32_BE(buffer_t *buf, size_t offset);
-bool buffer_write_int32_BE(buffer_t *buf, int32_t value, size_t offset);
+buffer_t *buffer_write_int32_BE(buffer_t *buf, int32_t value, size_t offset);
 
 // strings
 buffer_t *buffer_write_string(buffer_t *buf, char *str, size_t offset);

@@ -30,8 +30,9 @@ MU_TEST(lerr_t_test) {
 
   describe("TEST err_trouble_on"){
     lerr_t *err = err_create("a bit of a byte");
-    bool truth = (err_trouble_on(err))->trouble == true;
-    should("turn truble on",  truth);
+    err = err_trouble_on(err, "something failed");
+    should("turn truble on",  err->trouble);
+    should("turn set err msg",  equal_strings(err->msg, "something failed"));
     err_free(err);
   }
 
@@ -45,7 +46,7 @@ MU_TEST(lerr_t_test) {
   describe("TEST err_is_evil"){
     lerr_t *err = err_create("a bit of a byte");
     should("err should not be evil",  !err_is_evil(err));
-    err_trouble_on(err);
+    err_trouble_on(err, "");
     should("err should be evil",  err_is_evil(err));
     err_free(err);
   }
@@ -56,6 +57,9 @@ MU_TEST(buffer_t_test) {
     buffer_t *buf = buffer_create(10);
     should("->length should equal 10", buf->length == 10);
     should("->data should not be NULL", !is_null(buf->data));
+    should("->err should not be evil", !err_is_evil(buf->err));
+    should("->err->msg should be 'generic buffer error'",
+        equal_strings(buf->err->msg, "generic buffer error"))
     buffer_free(buf);
   }
 
@@ -80,6 +84,64 @@ MU_TEST(buffer_t_test) {
     buffer_free(buf);
     fclose(test_data);
   }
+  
+  describe("TEST buffer_is_evil"){
+    buffer_t *buf = buffer_create(5);
+    should("buf should not be evil", !buffer_is_evil(buf));
+    err_trouble_on(buf->err, "bad news");
+    should("buf should be evil", buffer_is_evil(buf));
+    buffer_free(buf);
+  }
+
+  describe("TEST buffer_read_uint8"){
+    buffer_t *buf = buffer_create(10);
+    buf->data[0] = 11;
+    buf->data[1] = 22;
+    buf->data[2] = 33;
+
+    uint8_t result;
+    result = buffer_read_uint8(buf, 0);
+    should("shold be 11", result == 11);
+    result = buffer_read_uint8(buf, 1);
+    should("shold be 22", result == 22);
+    result = buffer_read_uint8(buf, 2);
+    should("shold be 33", result == 33);
+    result = buffer_read_uint8(buf, 3);
+    should("shold be 0", result == 0);
+    buffer_free(buf);
+  }
+
+  describe("TEST buffer_read_int8"){
+    buffer_t *buf = buffer_create(10);
+    buf->data[0] = 11;
+    buf->data[1] = 22;
+    buf->data[2] = 33;
+
+    int8_t result;
+    result = buffer_read_int8(buf, 0);
+    should("shold be 11", result == 11);
+    result = buffer_read_int8(buf, 1);
+    should("shold be 22", result == 22);
+    result = buffer_read_int8(buf, 2);
+    should("shold be 33", result == 33);
+    result = buffer_read_int8(buf, 3);
+    should("shold be 0", result == 0);
+    buffer_free(buf);
+  }
+
+  describe("TEST buffer_write_uint8"){
+    buffer_t *buf = buffer_create(5);  
+    buf = buffer_write_uint8(buf, 11, 0);
+    should("write 11 at index 0", buf->data[0] == 11);
+    should("buffer should not be evil" , !err_is_evil(buf->err));
+    buf = buffer_write_uint8(buf, 22, 2);
+    should("write 22 at index 2", buf->data[2] == 22);
+    should("buffer should not be evil" , !err_is_evil(buf->err));
+    buf = buffer_write_uint8(buf, 100, 6);
+    should("buffer should be evil" , err_is_evil(buf->err));
+    buffer_free(buf);
+  }
+
 }
 
 MU_TEST_SUITE(test_suite) {
