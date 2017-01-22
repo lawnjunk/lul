@@ -1,25 +1,27 @@
 #ifndef LUL_LINE
 #define LUL_LINE
-
-#include <ncurses.h>
-#include "lul_types.h"
+#include "tools.h"
+#include "byte_array.h"
+#include "lerr.h"
 
 #define line_t struct line
 struct line {
-  char *buffer;
-  int length;
-  int size ;
+  byte_array_t *buffer;
+  int length; // length of string in buffer
+  int size ;  // amount of bytes allocated for buffer
+  lerr_t *err; 
 };
 
-// default line_t width is 256ch
-line_t *line_new(void);
-line_t *line_from_string(char *text);
+// line create and destroy
+line_t *line_create(char *text);
+line_t *line_free(line_t *line);
 
+// line operations
+bool line_is_evil(line_t *line);
 char *line_to_string(line_t *line);
-int line_add_ch(line_t *line, char c);
-int line_write(line_t *line, char *input);
-int line_insert(line_t *line, int offset, char *input);
-int line_delete(line_t *line, int offset, int count);
-int line_replace(line_t *line, int offset, char *input);
+char line_read_ch(line_t *line, int offset);
+line_t * line_append_ch(line_t *line, char c);
+line_t * line_delete_ch(line_t *line, int offset);
+line_t * line_insert_ch(line_t *line, int offset, char c);
 
 #endif

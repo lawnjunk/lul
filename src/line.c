@@ -66,12 +66,12 @@ line_t *line_replace(line_t *line, int offset, char *input){
   return line;
 };
 
-line_t *line_new(){
+line_t *line_create(char *text){
   line_t *result = (line_t *) malloc(sizeof(line_t));  
-  result->buffer = (char*) malloc(sizeof(char) * LINE_WITH);
-  result->buffer[0] = '\0';
+  result->buffer = buffer_create(LINE_WITH);
+  buffer_write(text);
+  result->length = strlen(text);;
   result->size = LINE_WITH;
-  result->length = 0;
   return result;
 }
 

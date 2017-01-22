@@ -142,7 +142,7 @@ static void (*minunit_teardown)() = NULL;
 		minunit_status = 1;\
 		return;\
 	} else {\
-		printf(".");\
+		printf("");\
 	}\
 )
 

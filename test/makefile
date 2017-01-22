@@ -1,8 +1,7 @@
 CFLAGS = -Wall
-INCLUDE = -I ../src -I .
-SOURCE = ../src/*.c
+INCLUDE = -I ../src/ -I ./
+SOURCE = ../src/lerr.c ../src/buffer.c
 LIBS = -lgc
-
 
 run: build 
 	./tests

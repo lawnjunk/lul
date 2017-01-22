@@ -8,3 +8,6 @@ CC = clang
 
 all:
 	$(CC) $(CFLAGS) $(INCLUDE) $(LDFLAGS) -o lul main.c $(OBJECTS) $(LDLIBS)
+
+t: 
+	make -C test	
