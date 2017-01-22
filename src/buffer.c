@@ -41,19 +41,23 @@ make_read8(buffer_read_int8, int8_t);
 make_write8(buffer_write_uint8, uint8_t);
 make_write8(buffer_write_int8, int8_t);
 
-/*#define make_read16(name, type, endianness) \*/
-  /*type name(buffer_t *self, size_t offset){ \*/
-    /*uint8_t *nums = (uint8_t *) self->data; \*/
-    /*type result; \*/
-    /*result = (type) nums[offset + (endianness == LE ? 1 : 0)]; \*/
-    /*result = result << 8; \*/
-    /*return result | nums[offset + (endianness == LE ? 0 : 1)]; \*/
-  /*}*/
+#define make_read16(name, type, endianness) \
+  type name(buffer_t *buf, size_t offset){ \
+    uint8_t *nums = (uint8_t *) buf->data; \
+    if (offset > buf->length - 2){\
+      err_trouble_on(buf->err, "access out of bounds");\
+      offset = buf->length - 2;\
+    }\
+    type result; \
+    result = (type) nums[offset + (endianness == LE ? 1 : 0)]; \
+    result = result << 8; \
+    return result | nums[offset + (endianness == LE ? 0 : 1)]; \
+  }
 
-/*make_read16(read_uint16_LE, uint16_t, LE);*/
-/*make_read16(read_int16_LE, int16_t, LE);*/
-/*make_read16(read_uint16_BE, uint16_t, BE);*/
-/*make_read16(read_int16_BE, int16_t, BE);*/
+make_read16(buffer_read_uint16_LE, uint16_t, LE);
+make_read16(buffer_read_int16_LE, int16_t, LE);
+make_read16(buffer_read_uint16_BE, uint16_t, BE);
+make_read16(buffer_read_int16_BE, int16_t, BE);
 
 /*#define write_int16(name, type, endianness) \*/
   /*boolean name(buffer_t *self, type value, size_t offset){ \*/
