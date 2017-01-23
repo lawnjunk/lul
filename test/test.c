@@ -10,6 +10,7 @@
 #define equal_int16(a, b) ((int16_t) a == (int16_t) b)
 #define equal_uint32(a, b) ((uint32_t) a == (uint32_t) b)
 #define equal_int32(a, b) ((int32_t) a == (int32_t) b)
+#define equal_char(a, b) ((char) a == (char) b)
 
 #define describe(msg) puts(msg); if(true)
 #define should(msg, truth)\
@@ -291,82 +292,9 @@ MU_TEST(buffer_t_test) {
         equal_uint16(buffer_read_int16_LE(buf, 3), 0xaaff));
     should("buf should be evil", buffer_is_evil(buf));
 
-    // cant write in to a dirty buffer
-    buf = buffer_write_int16_LE(buf, (uint16_t) 0x0, 3);
+    buf = buffer_write_int16_LE(buf, (uint16_t) 0x0, 0);
     should("buffer_read_uint16_LE at index 3 should be 0xaaff", 
         equal_uint16(buffer_read_int16_LE(buf, 3), 0xaaff));
-    should("buf should be evil", buffer_is_evil(buf));
-  }
-
-  describe("TEST bufffer_write_int16_LE"){
-    buffer_t *buf = buffer_create(5);
-    buf = buffer_write_int16_LE(buf, (int16_t) 0xffee, 0);
-    should("buffer_read_int16_LE at index 0 should be 0xffee", 
-        equal_int16(buffer_read_int16_LE(buf, 0), 0xffee));
-    should("buf should not be evil", !buffer_is_evil(buf));
-
-    buf = buffer_write_int16_LE(buf, (int16_t) 0xaaff, 3);
-    should("buffer_read_int16_LE at index 3 should be 0xaaff", 
-        equal_int16(buffer_read_int16_LE(buf, 3), 0xaaff));
-    should("buf should not be evil", !buffer_is_evil(buf));
-
-    buf = buffer_write_int16_LE(buf, (int16_t) 0x0, 4);
-    should("buffer_read_int16_LE at index 3 should be 0xaaff", 
-        equal_int16(buffer_read_int16_LE(buf, 3), 0xaaff));
-    should("buf should be evil", buffer_is_evil(buf));
-
-    // cant write in to a dirty buffer
-    buf = buffer_write_int16_LE(buf, (int16_t) 0x0, 3);
-    should("buffer_read_int16_LE at index 3 should be 0xaaff", 
-        equal_int16(buffer_read_int16_LE(buf, 3), 0xaaff));
-    should("buf should be evil", buffer_is_evil(buf));
-  }
-  
-  describe("TEST bufffer_write_uint16_BE"){
-    buffer_t *buf = buffer_create(5);
-    buf = buffer_write_int16_BE(buf, (uint16_t) 0xffee, 0);
-    should("buffer_read_uint16_BE at index 0 should be 0xffee", 
-        equal_uint16(buffer_read_int16_BE(buf, 0), 0xffee));
-    should("buf should not be evil", !buffer_is_evil(buf));
-
-    buf = buffer_write_int16_BE(buf, (uint16_t) 0xaaff, 3);
-    should("buffer_read_uint16_BE at index 3 should be 0xaaff", 
-        equal_uint16(buffer_read_int16_BE(buf, 3), 0xaaff));
-    should("buf should not be evil", !buffer_is_evil(buf));
-
-    buf = buffer_write_int16_BE(buf, (uint16_t) 0x0, 4);
-    should("buffer_read_uint16_BE at index 3 should be 0xaaff", 
-        equal_uint16(buffer_read_int16_BE(buf, 3), 0xaaff));
-    should("buf should be evil", buffer_is_evil(buf));
-
-    // cant write in to a dirty buffer
-    buf = buffer_write_int16_BE(buf, (uint16_t) 0x0, 3);
-    should("buffer_read_uint16_BE at index 3 should be 0xaaff", 
-        equal_uint16(buffer_read_int16_BE(buf, 3), 0xaaff));
-    should("buf should be evil", buffer_is_evil(buf));
-  }
-
-  describe("TEST bufffer_write_int16_BE"){
-    buffer_t *buf = buffer_create(5);
-    buf = buffer_write_int16_BE(buf, (int16_t) 0xffee, 0);
-    should("buffer_read_int16_BE at index 0 should be 0xffee", 
-        equal_int16(buffer_read_int16_BE(buf, 0), 0xffee));
-    should("buf should not be evil", !buffer_is_evil(buf));
-
-    buf = buffer_write_int16_BE(buf, (int16_t) 0xaaff, 3);
-    should("buffer_read_int16_BE at index 3 should be 0xaaff", 
-        equal_int16(buffer_read_int16_BE(buf, 3), 0xaaff));
-    should("buf should not be evil", !buffer_is_evil(buf));
-
-    buf = buffer_write_int16_BE(buf, (int16_t) 0x0, 4);
-    should("buffer_read_int16_BE at index 3 should be 0xaaff", 
-        equal_int16(buffer_read_int16_BE(buf, 3), 0xaaff));
-    should("buf should be evil", buffer_is_evil(buf));
-
-    // cant write in to a dirty buffer
-    buf = buffer_write_int16_BE(buf, (int16_t) 0x0, 3);
-    should("buffer_read_int16_BE at index 3 should be 0xaaff", 
-        equal_int16(buffer_read_int16_BE(buf, 3), 0xaaff));
     should("buf should be evil", buffer_is_evil(buf));
   }
 
@@ -587,6 +515,54 @@ MU_TEST(buffer_t_test) {
     should("buffer_read_int32_BE(2) should be 0xaabbccdd", 
         equal_int32(buffer_read_int32_BE(buf, 2), 0xaabbccdd));
 
+    buffer_free(buf);
+  }
+
+  describe("TEST buffer_fill_uint8"){
+    buffer_t *buf = buffer_create(5);
+    buf = buffer_fill_uint8(buf, (uint8_t) 0xfa);
+    for(int i=0; i<buf->length; i++){
+      should("buf at index should be 0xfa", equal_uint8(buf->data[i], 0xfa));
+    }
+
+    // sholdnt be able to over write if buffer is dirty
+    err_trouble_on(buf->err, "ut oh");
+    buf = buffer_fill_uint8(buf, (uint8_t) 0x00);
+    for(int i=0; i<buf->length; i++){
+      should("buf at index should be 0xfa", equal_uint8(buf->data[i], 0xfa));
+    }
+    buffer_free(buf);
+  }
+
+  describe("TEST buffer_fill_int8"){
+    buffer_t *buf = buffer_create(5);
+    buf = buffer_fill_int8(buf, (int8_t) 0xfa);
+    for(int i=0; i<buf->length; i++){
+      should("buf at index should be 0xfa", equal_int8(buf->data[i], 0xfa));
+    }
+
+    // sholdnt be able to over write if buffer is dirty
+    err_trouble_on(buf->err, "ut oh");
+    buf = buffer_fill_int8(buf, (int8_t) 0x00);
+    for(int i=0; i<buf->length; i++){
+      should("buf at index should be 0xfa", equal_int8(buf->data[i], 0xfa));
+    }
+    buffer_free(buf);
+  }
+
+  describe("TEST buffer_fill_char"){
+    buffer_t *buf = buffer_create(5);
+    buf = buffer_fill_char(buf, 'a');
+    for(int i=0; i<buf->length; i++){
+      should("buf at index should be 0xfa", equal_char(buf->data[i], 'a'));
+    }
+
+    // sholdnt be able to over write if buffer is dirty
+    err_trouble_on(buf->err, "ut oh");
+    buf = buffer_fill_char(buf, 'b');
+    for(int i=0; i<buf->length; i++){
+      should("buf at index should be 0xfa", equal_char(buf->data[i], 'a'));
+    }
     buffer_free(buf);
   }
 }

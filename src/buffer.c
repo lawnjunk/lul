@@ -171,17 +171,19 @@ make_write32(buffer_write_int32_BE, int32_t, BE);
   /*return result;*/
 /*}*/
 
-/*#define fill_byte(name, type) \*/
-  /*void name(buffer_t *self,  type num){ \*/
-    /*type *buf = (type*) self->data; \*/
-    /*for(int i=0; i<self->length; i++){ \*/
-      /*buf[i] = num; \*/
-    /*} \*/
-  /*}*/
+#define fill_byte(name, type) \
+  buffer_t *name(buffer_t *self,  type num){ \
+    if(err_is_evil(self->err)) return self;\
+    type *buf = (type*) self->data; \
+    for(int i=0; i<self->length; i++){ \
+      buf[i] = num; \
+    } \
+    return self;\
+  }
 
-/*fill_byte(fill_uint8, uint8_t);*/
-/*fill_byte(fill_int8, int8_t);*/
-/*fill_byte(fill_char, char);*/
+fill_byte(buffer_fill_uint8, uint8_t);
+fill_byte(buffer_fill_int8, int8_t);
+fill_byte(buffer_fill_char, char);
 
 /*buffer_t *slice(buffer_t *self, size_t start, size_t end){*/
   /*if (start > self->length) return NULL;*/
