@@ -13,6 +13,7 @@ typedef struct {
 
 // uint8
 uint8_t buffer_read_uint8(buffer_t *buf, size_t offset);
+char buffer_read_char(buffer_t *buf, size_t offset);
 buffer_t *buffer_write_uint8(buffer_t *buf, uint8_t value, size_t offset);
 // int8
 int8_t buffer_read_int8(buffer_t *buf, size_t offset);

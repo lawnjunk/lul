@@ -120,6 +120,24 @@ MU_TEST(buffer_t_test) {
     buffer_free(buf);
   }
 
+  describe("TEST buffer_read_char"){
+    buffer_t *buf = buffer_create(10);
+    buf->data[0] = 'a';
+    buf->data[1] = 'b';
+    buf->data[2] = 'c';
+
+    char result;
+    result = buffer_read_char(buf, 0);
+    should("shold be 'a'", result == 'a');
+    result = buffer_read_char(buf, 1);
+    should("shold be 'b'", result == 'b');
+    result = buffer_read_char(buf, 2);
+    should("shold be 'c'", result == 'c');
+    result = buffer_read_char(buf, 3);
+    should("shold be 0", result == 0);
+    buffer_free(buf);
+  }
+
   describe("TEST buffer_read_int8"){
     buffer_t *buf = buffer_create(10);
     buf->data[0] = 11;

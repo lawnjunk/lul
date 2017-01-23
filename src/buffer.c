@@ -24,6 +24,7 @@ typedef enum {
 
 make_read8(buffer_read_uint8, uint8_t);
 make_read8(buffer_read_int8, int8_t);
+make_read8(buffer_read_char, char);
 
 /*// make_write8 creates functions for writing a signed*/
 /*// or unsigned 8bit int, at a size_t offse*/
