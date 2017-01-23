@@ -5,7 +5,7 @@
 
 #define describe(msg) puts(msg); if(true)
 #define should(msg, truth)\
-  printf("  %s: %s\n", truth ? "\x1B[32msuccess\x1b[0m" : "\x1B[31mfail   \x1b[0m", msg);\
+  printf("  %s: %s\n", truth ? "\x1B[32mbooya\x1b[0m" : "\x1B[31mfuck \x1b[0m", msg);\
 mu_check(truth);\
 
 #define fail() should( "generic fail", false)
@@ -676,7 +676,7 @@ MU_TEST(buffer_t_test) {
     should("have a length of six", equal_size(buf->length, 6));
     char *data = "lulwat";
     for(int i=0;i<6;i++){
-      should("have the write data at index", 
+      should("have the right data at index", 
           equal_char(buffer_read_uint8(buf, i), data[i]));
     }
   }
@@ -685,7 +685,7 @@ MU_TEST(buffer_t_test) {
     buffer_t *buf = buffer_from_int8_array((int8_t []) {0, 1, 2, 3}, 4);
     should("buf should have a length of 4", equal_size(buf->length, 4));
     for(int i=0;i<4;i++){
-      should("have the write data at index", 
+      should("have the right data at index", 
           equal_char(buffer_read_uint8(buf, i), i));
     }
   }
@@ -694,7 +694,7 @@ MU_TEST(buffer_t_test) {
     buffer_t *buf = buffer_from_uint8_array((uint8_t []) {0, 1, 2, 3}, 4);
     should("buf should have a length of 4", equal_size(buf->length, 4));
     for(int i=0;i<4;i++){
-      should("have the write data at index", 
+      should("have the right data at index", 
           equal_char(buffer_read_uint8(buf, i), i));
     }
   }
