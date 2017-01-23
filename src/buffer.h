@@ -1,13 +1,13 @@
 #ifndef BYTE_ARRAY
 #define BYTE_ARRAY
 #include "tools.h"
-#include "lerr.h"
+#include "flub.h"
 
 // this is a class
 typedef struct {
   uint8_t *data;
   size_t length;
-  lerr_t *err;
+  flub_t *err;
   bool is_slice; // necessary for buffer_nuke
 } buffer_t;
 

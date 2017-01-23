@@ -1,4 +1,4 @@
-#include "lerr.h"
+#include "flub.h"
 #include "buffer.h"
 
 typedef enum {
@@ -15,7 +15,7 @@ typedef enum {
 #define make_read8(name, type) \
   type name(buffer_t *buf, size_t offset){ \
     if(offset > buf->length -1) {\
-      err_trouble_on(buf->err, "access out of bounds");\
+      flub_trouble_on(buf->err, "access out of bounds");\
     }\
     /*type *nums = (type *) buf->data; \*/ \
     return (type) buf->data[offset];\
@@ -33,9 +33,9 @@ make_read8(buffer_read_char, char);
 /*// return true on success*/
 #define make_write8(name, type) \
   buffer_t *name(buffer_t *buf, type value, size_t offset){ \
-    if(err_is_evil(buf->err)) return buf;\
+    if(flub_is_evil(buf->err)) return buf;\
     if(offset > buf->length - 1){\
-      err_trouble_on(buf->err, "write attempt out of bounds");\
+      flub_trouble_on(buf->err, "write attempt out of bounds");\
       return buf;\
     }\
     type *nums = (type *) buf->data; \
@@ -51,7 +51,7 @@ make_write8(buffer_write_char, char);
   type name(buffer_t *buf, size_t offset){ \
     uint8_t *nums = (uint8_t *) buf->data; \
     if (offset > buf->length - 2){\
-      err_trouble_on(buf->err, "access out of bounds");\
+      flub_trouble_on(buf->err, "access out of bounds");\
       offset = buf->length - 2;\
     }\
     type result; \
@@ -67,9 +67,9 @@ make_read16(buffer_read_int16_BE, int16_t, BE);
 
 #define write_int16(name, type, endianness) \
   buffer_t * name(buffer_t *buf, type value, size_t offset){ \
-    if(err_is_evil(buf->err)) return buf;\
+    if(flub_is_evil(buf->err)) return buf;\
     if(offset > buf->length - 2){\
-      err_trouble_on(buf->err, "write attempt out of bounds");\
+      flub_trouble_on(buf->err, "write attempt out of bounds");\
       return buf;\
     }\
     uint8_t *nums = (uint8_t *) buf->data; \
@@ -87,7 +87,7 @@ write_int16(buffer_write_int16_BE, int16_t, BE);
   type name(buffer_t *self, size_t offset){ \
     uint8_t *nums = (uint8_t *) self->data; \
     if(offset > self->length - 4){\
-      err_trouble_on(self->err, "access out of bounds");\
+      flub_trouble_on(self->err, "access out of bounds");\
       offset = self->length - 4;\
     }\
     type result =            nums[offset + (endianness == LE ? 3 : 0)]; \
@@ -105,9 +105,9 @@ read_int32(buffer_read_int32_BE, int32_t, BE);
 /*// to not add checks at runtime!*/
 #define make_write32(name, type, endianness) \
   buffer_t * name(buffer_t *buf, type value, size_t offset){ \
-    if(err_is_evil(buf->err)) return buf;\
+    if(flub_is_evil(buf->err)) return buf;\
     if(offset > buf->length - 4) {\
-      err_trouble_on(buf->err, "attempt out of bounds write");\
+      flub_trouble_on(buf->err, "attempt out of bounds write");\
       return buf;\
     }\
     uint8_t *nums = (uint8_t *) buf->data; \
@@ -176,7 +176,7 @@ make_write32(buffer_write_int32_BE, int32_t, BE);
 
 #define fill_byte(name, type) \
   buffer_t *name(buffer_t *self,  type num){ \
-    if(err_is_evil(self->err)) return self;\
+    if(flub_is_evil(self->err)) return self;\
     type *buf = (type*) self->data; \
     for(int i=0; i<self->length; i++){ \
       buf[i] = num; \
@@ -190,27 +190,27 @@ fill_byte(buffer_fill_char, char);
 
 buffer_t *buffer_slice(buffer_t *self, size_t start, size_t end){
   buffer_t *result;
-  if (err_is_evil(self->err)) {
+  if (flub_is_evil(self->err)) {
     result = buffer_birth(0);
     result->is_slice = true;
-    err_trouble_on(result->err, "cant slice from evil buffer");
+    flub_trouble_on(result->err, "cant slice from evil buffer");
     return result;
   }
   if (start > self->length) {
     result = buffer_birth(0);
     result->is_slice = true;
-    err_trouble_on(result->err, "start can not be grater than buf->length");
+    flub_trouble_on(result->err, "start can not be grater than buf->length");
     return result;
   }
   if (start > end) {
     result = buffer_birth(0);
     result->is_slice = true;
-    err_trouble_on(result->err, "start can not be grater than end");
+    flub_trouble_on(result->err, "start can not be grater than end");
     return result;
   }
   result = (buffer_t *) malloc(sizeof(buffer_t));
   result->data = self->data + start;
-  result->err = err_birth("generic buffer error"); // TODO: refacort msgs to macros
+  result->err = flub_birth("generic buffer error"); // TODO: refacort msgs to macros
   result->length = (end > self->length ? self->length - start: end - start); 
   result->is_slice = true;
   return result;
@@ -221,13 +221,13 @@ buffer_t *buffer_slice(buffer_t *self, size_t start, size_t end){
 /*check = 7 - 4  (3)*/
 
 buffer_t *buffer_write_buffer(buffer_t *dest, buffer_t *src, size_t offset, size_t count){
-  if(err_is_evil(dest->err)) return dest;
-  if(err_is_evil(src->err)){
-    err_trouble_on(dest->err, "src buffer was evil");
+  if(flub_is_evil(dest->err)) return dest;
+  if(flub_is_evil(src->err)){
+    flub_trouble_on(dest->err, "src buffer was evil");
     return dest;
   }
   if(offset > (dest->length - count)){
-    err_trouble_on(dest->err, "not enough room");
+    flub_trouble_on(dest->err, "not enough room");
     return dest;
   }
   uint8_t *data = dest->data;
@@ -246,7 +246,7 @@ buffer_t *buffer_birth(size_t length){
   buffer_t *result = malloc(sizeof(buffer_t));
   result->data = (uint8_t *) malloc(sizeof(uint8_t) * length);
   result->length = length;
-  result->err = err_birth("generic buffer error"); // TODO: refacort msgs to macros
+  result->err = flub_birth("generic buffer error"); // TODO: refacort msgs to macros
   result->is_slice = false;
   return result;
 }
@@ -255,14 +255,14 @@ buffer_t *buffer_nuke(buffer_t *buf){
   if(!buf->is_slice){
     free(buf->data);
   }
-  err_nuke(buf->err);
+  flub_nuke(buf->err);
   free(buf);
   buf = NULL;
   return buf;
 }
 
 bool buffer_is_evil(buffer_t *buf){
-  return err_is_evil(buf->err);
+  return flub_is_evil(buf->err);
 }
 
 buffer_t *buffer_from_file(FILE *infile){

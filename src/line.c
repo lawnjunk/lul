@@ -20,7 +20,7 @@ char *line_to_string(line_t *line){
 
 line_t *line_append_ch(line_t *line, char c){
   if(line->length == line->size) {
-    err_trouble_on(line->err, "not enough room");
+    flub_trouble_on(line->err, "not enough room");
     return line;
   }
   buffer_write_char(line->buffer, c, line->length++);

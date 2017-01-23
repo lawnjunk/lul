@@ -1,30 +1,30 @@
 #include "tools.h"
-#include "lerr.h"
+#include "flub.h"
 
-lerr_t *err_birth(char *msg){
-  lerr_t *result = (lerr_t *) malloc(sizeof(lerr_t));
+flub_t *flub_birth(char *msg){
+  flub_t *result = (flub_t *) malloc(sizeof(flub_t));
   result->msg = msg;
   result->trouble = false;
   return result;
 }
 
-lerr_t *err_nuke(lerr_t *err){
+flub_t *flub_nuke(flub_t *err){
   free(err);
   err = NULL;
   return err;
 }
 
-bool err_is_evil(lerr_t *err){
+bool flub_is_evil(flub_t *err){
   return err->trouble;
 }
 
-lerr_t *err_trouble_on(lerr_t *err, char *msg){
+flub_t *flub_trouble_on(flub_t *err, char *msg){
   err->msg = msg;
   err->trouble = true;
   return err;
 };
 
-lerr_t *err_trouble_off(lerr_t *err){
+flub_t *flub_trouble_off(flub_t *err){
   err->trouble = false;
   return err;
 }

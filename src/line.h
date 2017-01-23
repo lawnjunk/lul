@@ -2,12 +2,12 @@
 #define LUL_LINE
 #include "tools.h"
 #include "buffer.h"
-#include "lerr.h"
+#include "flub.h"
 
 #define line_t struct line
 struct line {
   buffer_t *buffer;
-  lerr_t *err; 
+  flub_t *err; 
   int length; // length of string in buffer
   int size ;  // amount of bytes allocated for buffer
 };
