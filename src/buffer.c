@@ -59,7 +59,7 @@ make_read16(buffer_read_uint16_BE, uint16_t, BE);
 make_read16(buffer_read_int16_BE, int16_t, BE);
 
 /*#define write_int16(name, type, endianness) \*/
-  /*boolean name(buffer_t *self, type value, size_t offset){ \*/
+  /*buffer_t * name(buffer_t *self, type value, size_t offset){ \*/
     /*if(offset > self->length) \*/
     /*return false;  \*/
     /*uint8_t *nums = (uint8_t *) self->data; \*/
@@ -93,22 +93,25 @@ read_int32(buffer_read_int32_BE, int32_t, BE);
 
 /*// TODO: REPLACE the ternery endianness check with some pre-procesor haxs*/
 /*// to not add checks at runtime!*/
-/*#define make_write32(name, type, endianness) \*/
-  /*boolean name(buffer_t *self, type value, size_t offset){ \*/
-    /*if(offset > self->length) \*/
-    /*return false; \*/
-    /*uint8_t *nums = (uint8_t *) self->data; \*/
-    /*nums[offset + (endianness == LE ? 0 : 3)] = value & 0xff ; \*/
-    /*nums[offset + (endianness == LE ? 1 : 2)] = (value >> 8) & 0xff; \*/
-    /*nums[offset + (endianness == LE ? 2 : 1)] = (value >> 16) & 0xff; \*/
-    /*nums[offset + (endianness == LE ? 3 : 0)] = (value >> 24) & 0xff; \*/
-    /*return true; \*/
-  /*}*/
+#define make_write32(name, type, endianness) \
+  buffer_t * name(buffer_t *buf, type value, size_t offset){ \
+    if(err_is_evil(buf->err)) return buf;\
+    if(offset > buf->length - 4) {\
+      err_trouble_on(buf->err, "attempt out of bounds write");\
+      return buf;\
+    }\
+    uint8_t *nums = (uint8_t *) buf->data; \
+    nums[offset + (endianness == LE ? 0 : 3)] = value & 0xff ; \
+    nums[offset + (endianness == LE ? 1 : 2)] = (value >> 8) & 0xff; \
+    nums[offset + (endianness == LE ? 2 : 1)] = (value >> 16) & 0xff; \
+    nums[offset + (endianness == LE ? 3 : 0)] = (value >> 24) & 0xff; \
+    return buf;\
+  }
 
-/*make_write32(write_uint32_LE, uint32_t, LE);*/
-/*make_write32(write_int32_LE, int32_t, LE);*/
-/*make_write32(write_uint32_BE, uint32_t, BE);*/
-/*make_write32(write_int32_BE, int32_t, BE);*/
+make_write32(buffer_write_uint32_LE, uint32_t, LE);
+make_write32(buffer_write_int32_LE, int32_t, LE);
+make_write32(buffer_write_uint32_BE, uint32_t, BE);
+make_write32(buffer_write_int32_BE, int32_t, BE);
 
 /*// returns -1 on fail*/
 /*// does not copy the null byte*/

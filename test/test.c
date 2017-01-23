@@ -369,6 +369,130 @@ MU_TEST(buffer_t_test) {
 
     buffer_free(buf);
   }
+
+  describe("TEST buffer_write_uint32_LE"){
+    buffer_t *buf = buffer_create(5);
+    buf = buffer_write_uint32_LE(buf, (uint32_t) 0xaabbccdd, 3);
+    should("buf should be evil", buffer_is_evil(buf));
+    for(int i=0; i<buf->length; i++){
+      should("be zero", equal_uint8(buf->data[i], 0));
+    }
+
+    // sould not be able to write in an evil buffer
+    buf = buffer_write_uint32_LE(buf, (uint32_t) 0xaabbccdd, 0);
+    should("buf should be evil", buffer_is_evil(buf));
+    err_trouble_off(buf->err);
+
+    buf = buffer_write_uint32_LE(buf, (uint32_t) 0xaabbccdd, 0);
+    should("buf should not be evil", !buffer_is_evil(buf));
+    should("buffer_read_int32_LE(0) should be 0xaabbccdd", 
+        equal_uint32(buffer_read_uint32_LE(buf, 0), 0xaabbccdd));
+
+    buf = buffer_write_uint32_LE(buf, (uint32_t) 0xaabbccdd, 1);
+    should("buf should not be evil", !buffer_is_evil(buf));
+    should("buffer_read_int32_LE(1) should be 0xaabbccdd", 
+        equal_uint32(buffer_read_uint32_LE(buf, 1), 0xaabbccdd));
+
+    buf = buffer_write_uint32_LE(buf, (uint32_t) 0x0, 2);
+    should("buf should be evil", buffer_is_evil(buf));
+    should("buffer_read_int32_LE(2) should be 0xaabbccdd", 
+        equal_uint32(buffer_read_uint32_LE(buf, 2), 0xaabbccdd));
+
+    buffer_free(buf);
+  }
+
+  describe("TEST buffer_write_int32_LE"){
+    buffer_t *buf = buffer_create(5);
+    buf = buffer_write_int32_LE(buf, (int32_t) 0xaabbccdd, 3);
+    should("buf should be evil", buffer_is_evil(buf));
+    for(int i=0; i<buf->length; i++){
+      should("be zero", equal_int8(buf->data[i], 0));
+    }
+
+    // sould not be able to write in an evil buffer
+    buf = buffer_write_int32_LE(buf, (int32_t) 0xaabbccdd, 0);
+    should("buf should be evil", buffer_is_evil(buf));
+    err_trouble_off(buf->err);
+
+    buf = buffer_write_int32_LE(buf, (int32_t) 0xaabbccdd, 0);
+    should("buf should not be evil", !buffer_is_evil(buf));
+    should("buffer_read_int32_LE(0) should be 0xaabbccdd", 
+        equal_int32(buffer_read_int32_LE(buf, 0), 0xaabbccdd));
+
+    buf = buffer_write_int32_LE(buf, (int32_t) 0xaabbccdd, 1);
+    should("buf should not be evil", !buffer_is_evil(buf));
+    should("buffer_read_int32_LE(1) should be 0xaabbccdd", 
+        equal_int32(buffer_read_int32_LE(buf, 1), 0xaabbccdd));
+
+    buf = buffer_write_int32_LE(buf, (int32_t) 0x0, 2);
+    should("buf should be evil", buffer_is_evil(buf));
+    should("buffer_read_int32_LE(2) should be 0xaabbccdd", 
+        equal_int32(buffer_read_int32_LE(buf, 2), 0xaabbccdd));
+
+    buffer_free(buf);
+  }
+
+  describe("TEST buffer_write_uint32_BE"){
+    buffer_t *buf = buffer_create(5);
+    buf = buffer_write_uint32_BE(buf, (uint32_t) 0xaabbccdd, 3);
+    should("buf should be evil", buffer_is_evil(buf));
+    for(int i=0; i<buf->length; i++){
+      should("be zero", equal_uint8(buf->data[i], 0));
+    }
+
+    // sould not be able to write in an evil buffer
+    buf = buffer_write_uint32_BE(buf, (uint32_t) 0xaabbccdd, 0);
+    should("buf should be evil", buffer_is_evil(buf));
+    err_trouble_off(buf->err);
+
+    buf = buffer_write_uint32_BE(buf, (uint32_t) 0xaabbccdd, 0);
+    should("buf should not be evil", !buffer_is_evil(buf));
+    should("buffer_read_uint32_BE(0) should be 0xaabbccdd", 
+        equal_uint32(buffer_read_uint32_BE(buf, 0), 0xaabbccdd));
+
+    buf = buffer_write_uint32_BE(buf, (uint32_t) 0xaabbccdd, 1);
+    should("buf should not be evil", !buffer_is_evil(buf));
+    should("buffer_read_uint32_BE(1) should be 0xaabbccdd", 
+        equal_uint32(buffer_read_uint32_BE(buf, 1), 0xaabbccdd));
+
+    buf = buffer_write_uint32_BE(buf, (uint32_t) 0x0, 2);
+    should("buf should be evil", buffer_is_evil(buf));
+    should("buffer_read_uint32_BE(2) should be 0xaabbccdd", 
+        equal_uint32(buffer_read_uint32_BE(buf, 2), 0xaabbccdd));
+
+    buffer_free(buf);
+  }
+
+  describe("TEST buffer_write_int32_BE"){
+    buffer_t *buf = buffer_create(5);
+    buf = buffer_write_int32_BE(buf, (int32_t) 0xaabbccdd, 3);
+    should("buf should be evil", buffer_is_evil(buf));
+    for(int i=0; i<buf->length; i++){
+      should("be zero", equal_int8(buf->data[i], 0));
+    }
+
+    // sould not be able to write in an evil buffer
+    buf = buffer_write_int32_BE(buf, (int32_t) 0xaabbccdd, 0);
+    should("buf should be evil", buffer_is_evil(buf));
+    err_trouble_off(buf->err);
+
+    buf = buffer_write_int32_BE(buf, (int32_t) 0xaabbccdd, 0);
+    should("buf should not be evil", !buffer_is_evil(buf));
+    should("buffer_read_int32_BE(0) should be 0xaabbccdd", 
+        equal_int32(buffer_read_int32_BE(buf, 0), 0xaabbccdd));
+
+    buf = buffer_write_int32_BE(buf, (int32_t) 0xaabbccdd, 1);
+    should("buf should not be evil", !buffer_is_evil(buf));
+    should("buffer_read_int32_BE(1) should be 0xaabbccdd", 
+        equal_int32(buffer_read_int32_BE(buf, 1), 0xaabbccdd));
+
+    buf = buffer_write_int32_BE(buf, (int32_t) 0x0, 2);
+    should("buf should be evil", buffer_is_evil(buf));
+    should("buffer_read_int32_BE(2) should be 0xaabbccdd", 
+        equal_int32(buffer_read_int32_BE(buf, 2), 0xaabbccdd));
+
+    buffer_free(buf);
+  }
 }
 
 MU_TEST_SUITE(test_suite) {
