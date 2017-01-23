@@ -11,6 +11,7 @@
 #define equal_uint32(a, b) ((uint32_t) a == (uint32_t) b)
 #define equal_int32(a, b) ((int32_t) a == (int32_t) b)
 #define equal_char(a, b) ((char) a == (char) b)
+#define equal_size(a, b) ((size_t) a == (size_t) b)
 
 #define describe(msg) puts(msg); if(true)
 #define should(msg, truth)\
@@ -564,6 +565,91 @@ MU_TEST(buffer_t_test) {
       should("buf at index should be 0xfa", equal_char(buf->data[i], 'a'));
     }
     buffer_free(buf);
+  }
+
+  describe("TEST buffer_slice"){
+    buffer_t *buf = buffer_create(5); 
+    buf->data[0] = 0xaa;
+    buf->data[1] = 0xbb;
+    buf->data[2] = 0xcc;
+    buf->data[3] = 0xdd;
+    buf->data[4] = 0xee;
+
+    buffer_t *slice = buffer_slice(buf, 2, 5);
+    should("slice should have a length of 3", equal_size(slice->length, 3));
+    should("slice at 0 should be 0xcc", equal_uint8(slice->data[0], 0xcc));
+    should("slice at 1 should be 0xdd", equal_uint8(slice->data[1], 0xdd));
+    should("slice at 2 should be 0xee", equal_uint8(slice->data[2], 0xee));
+
+    slice = buffer_write_uint8(slice, 0x3, 0);
+    should("slice at 0 should be 0x3", equal_uint8(slice->data[0], 0x3));
+    should("buf at 2 should be 0x3", equal_uint8(buf->data[2], 0x3));
+
+    err_trouble_on(buf->err, "bad news");
+    buffer_t *evil_slice = buffer_slice(buf, 0, 4);
+    should("be an evil buffer", buffer_is_evil(evil_slice));
+    should("have a length of 0", equal_size(evil_slice->length, 0));
+
+    buffer_t *evil_start = buffer_slice(buf, 15, 16);
+    should("be an evil buffer", buffer_is_evil(evil_start));
+    should("have a length of 0", equal_size(evil_start->length, 0));
+
+    buffer_t *evil_end = buffer_slice(buf, 2, 1);
+    should("be an evil buffer", buffer_is_evil(evil_end));
+    should("have a length of 0", equal_size(evil_start->length, 0));
+
+    buffer_free(evil_start);
+    buffer_free(evil_slice);
+    buffer_free(evil_end);
+    buffer_free(slice);
+    buffer_free(buf);
+  }
+
+  describe("TEST buffer_write_buffer"){
+    buffer_t *dest = buffer_create(8);
+    buffer_t *src = buffer_create(4);
+    buffer_write_uint32_BE(src, 0xaabbccdd, 0);
+    dest = buffer_write_buffer(dest, src, 4, src->length);
+    should("dest[4] should be 0xaa", 
+        equal_uint8(buffer_read_uint8(dest, 4), 0xaa));
+    should("dest[5] should be 0xbb", 
+        equal_uint8(buffer_read_uint8(dest, 5), 0xbb));
+    should("dest[6] should be 0xcc", 
+        equal_uint8(buffer_read_uint8(dest, 6), 0xcc));
+    should("dest[7] should be 0xdd", 
+        equal_uint8(buffer_read_uint8(dest, 7), 0xdd));
+
+    err_trouble_on(dest->err, "for testing");
+    dest = buffer_write_buffer(dest, src, 0, src->length);
+    for(int i=0; i<4; i++){
+      should("dest->data at index should be 0x0", 
+        equal_uint8(buffer_read_uint8(dest, i), 0x0));
+    }
+    should("dest should be evil", buffer_is_evil(dest));
+    err_trouble_off(dest->err);
+
+    err_trouble_on(src->err, "for testing");
+    dest = buffer_write_buffer(dest, src, 0, src->length);
+    for(int i=0; i<4; i++){
+      should("dest->data at index should be 0x0", 
+        equal_uint8(buffer_read_uint8(dest, i), 0x0));
+    }
+
+    should("dest should be evil", buffer_is_evil(dest));
+    err_trouble_off(dest->err);
+    err_trouble_off(src->err);
+
+    dest = buffer_write_buffer(dest, src, 5, src->length);
+    should("dest should be evil", buffer_is_evil(dest));
+    should("dest[5] should be 0xbb", 
+        equal_uint8(buffer_read_uint8(dest, 5), 0xbb));
+    should("dest[6] should be 0xcc", 
+        equal_uint8(buffer_read_uint8(dest, 6), 0xcc));
+    should("dest[7] should be 0xdd", 
+        equal_uint8(buffer_read_uint8(dest, 7), 0xdd));
+    
+    buffer_free(dest);
+    buffer_free(src);
   }
 }
 

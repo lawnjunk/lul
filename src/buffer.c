@@ -17,8 +17,9 @@ typedef enum {
     if(offset > buf->length -1) {\
       err_trouble_on(buf->err, "access out of bounds");\
     }\
-    type *nums = (type *) buf->data; \
-    return nums[offset]; \
+    /*type *nums = (type *) buf->data; \*/ \
+    return (type) buf->data[offset];\
+    /*return nums[offset]; \*/ \
   }
 
 make_read8(buffer_read_uint8, uint8_t);
@@ -185,27 +186,73 @@ fill_byte(buffer_fill_uint8, uint8_t);
 fill_byte(buffer_fill_int8, int8_t);
 fill_byte(buffer_fill_char, char);
 
-/*buffer_t *slice(buffer_t *self, size_t start, size_t end){*/
-  /*if (start > self->length) return NULL;*/
-  /*buffer_t *result = (buffer_t *) GC_MALLOC(sizeof(buffer_t));*/
-  /*uint8_t *buf = self->data;*/
-  /*result->data =  buf + start;*/
-  /*result->length = (end > self->length ? self->length - start: end - start); */
-  /*add_buffer_methods(result);*/
-  /*return result;*/
+buffer_t *buffer_slice(buffer_t *self, size_t start, size_t end){
+  buffer_t *result;
+  if (err_is_evil(self->err)) {
+    result = buffer_create(0);
+    result->is_slice = true;
+    err_trouble_on(result->err, "cant slice from evil buffer");
+    return result;
+  }
+  if (start > self->length) {
+    result = buffer_create(0);
+    result->is_slice = true;
+    err_trouble_on(result->err, "start can not be grater than buf->length");
+    return result;
+  }
+  if (start > end) {
+    result = buffer_create(0);
+    result->is_slice = true;
+    err_trouble_on(result->err, "start can not be grater than end");
+    return result;
+  }
+  result = (buffer_t *) malloc(sizeof(buffer_t));
+  result->data = self->data + start;
+  result->err = err_create("generic buffer error"); // TODO: refacort msgs to macros
+  result->length = (end > self->length ? self->length - start: end - start); 
+  result->is_slice = true;
+  return result;
+}
+
+/*0123456  7*/
+   /*0123  4*/
+/*check = 7 - 4  (3)*/
+
+buffer_t *buffer_write_buffer(buffer_t *dest, buffer_t *src, size_t offset, size_t count){
+  if(err_is_evil(dest->err)) return dest;
+  if(err_is_evil(src->err)){
+    err_trouble_on(dest->err, "src buffer was evil");
+    return dest;
+  }
+  if(offset > (dest->length - count)){
+    err_trouble_on(dest->err, "not enough room");
+    return dest;
+  }
+  uint8_t *data = dest->data;
+  for(size_t i=0; i<count; i++){
+    dest->data[offset + i] = src->data[i];
+  }
+  return dest;
+}
+
+/*buffer_t *buffer_copy(buffer_t *buf){*/
+  /*return buffer_slice(buf, 0, buf->length);*/
 /*}*/
 
 buffer_t *buffer_create(size_t length){
   // create new buffer_t
   buffer_t *result = malloc(sizeof(buffer_t));
-  result->data = malloc(sizeof(uint8_t) * length);
+  result->data = (uint8_t *) malloc(sizeof(uint8_t) * length);
   result->length = length;
   result->err = err_create("generic buffer error"); // TODO: refacort msgs to macros
+  result->is_slice = false;
   return result;
 }
 
 buffer_t *buffer_free(buffer_t *buf){
-  free(buf->data);
+  if(!buf->is_slice){
+    free(buf->data);
+  }
   free(buf);
   buf = NULL;
   return buf;
@@ -217,7 +264,7 @@ bool buffer_is_evil(buffer_t *buf){
 
 buffer_t *buffer_from_file(FILE *infile){
   fseek(infile, 0, SEEK_END); // jump to end of file
-  size_t  length = ftell(infile); // get length
+  size_t length = ftell(infile); // get length
   fseek(infile, 0, SEEK_SET); // go back to begenning of file
   // allocate buffer
   buffer_t *result = buffer_create(length);

@@ -8,6 +8,7 @@ typedef struct {
   uint8_t *data;
   size_t length;
   lerr_t *err;
+  bool is_slice; // necessary for buffer_free
 } buffer_t;
 
 // uint8
@@ -59,17 +60,23 @@ buffer_t *buffer_fill_char(buffer_t *buf, char num);
 // slice
 buffer_t *buffer_slice(buffer_t *buf, size_t start, size_t end);
 
+// write buffer
+buffer_t *buffer_write_buffer(buffer_t *dest, buffer_t *src, size_t offset, size_t count);
+
 // is evil
 bool buffer_is_evil(buffer_t *buf);
 
 // create create and free
 buffer_t *buffer_free(buffer_t *buf);
 buffer_t *buffer_create(size_t length);
+buffer_t *buffer_from_char_array(char *data);
+buffer_t *buffer_from_int_array(int8_t *data);
+buffer_t *buffer_from_uint8_array(uint8_t *data);
 buffer_t *buffer_from_file(FILE *infile);
 
 #define buffer_print(input) \
   for(int i=0; i<input->length; i++){ \
-    printf("%s[%d]: 0X%X\n", #input, i, apply(input, buffer_read_uint8, i)); \
+    printf("%s[%d]: 0X%X\n", #input, i, buffer_read_uint8(input, i)); \
   }
 
 #endif
