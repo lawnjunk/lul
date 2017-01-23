@@ -70,8 +70,8 @@ bool buffer_is_evil(buffer_t *buf);
 buffer_t *buffer_free(buffer_t *buf);
 buffer_t *buffer_create(size_t length);
 buffer_t *buffer_from_char_array(char *data);
-buffer_t *buffer_from_int_array(int8_t *data);
-buffer_t *buffer_from_uint8_array(uint8_t *data);
+buffer_t *buffer_from_int8_array(int8_t *data, size_t length);
+buffer_t *buffer_from_uint8_array(uint8_t *data, size_t length);
 buffer_t *buffer_from_file(FILE *infile);
 
 #define buffer_print(input) \

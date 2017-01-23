@@ -651,6 +651,34 @@ MU_TEST(buffer_t_test) {
     buffer_free(dest);
     buffer_free(src);
   }
+
+  describe("TEST buffer_from_char_array"){
+    buffer_t *buf = buffer_from_char_array("lulwat");
+    should("have a length of six", equal_size(buf->length, 6));
+    char *data = "lulwat";
+    for(int i=0;i<6;i++){
+      should("have the write data at index", 
+          equal_char(buffer_read_uint8(buf, i), data[i]));
+    }
+  }
+
+  describe("TEST buffer_from_int8_array"){
+    buffer_t *buf = buffer_from_int8_array((int8_t []) {0, 1, 2, 3}, 4);
+    should("buf should have a length of 4", equal_size(buf->length, 4));
+    for(int i=0;i<4;i++){
+      should("have the write data at index", 
+          equal_char(buffer_read_uint8(buf, i), i));
+    }
+  }
+
+  describe("TEST buffer_from_uint8_array"){
+    buffer_t *buf = buffer_from_uint8_array((uint8_t []) {0, 1, 2, 3}, 4);
+    should("buf should have a length of 4", equal_size(buf->length, 4));
+    for(int i=0;i<4;i++){
+      should("have the write data at index", 
+          equal_char(buffer_read_uint8(buf, i), i));
+    }
+  }
 }
 
 MU_TEST_SUITE(test_suite) {

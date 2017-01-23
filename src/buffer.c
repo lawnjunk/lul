@@ -272,3 +272,29 @@ buffer_t *buffer_from_file(FILE *infile){
   fread(result->data, length, 1, infile);
   return result;
 }
+
+buffer_t *buffer_from_char_array(char *data){
+  int length = strlen(data);
+  buffer_t *result = buffer_create(length);
+  for(int i=0; i<length; i++){
+    result->data[i] = data[i];
+  }
+  return result;
+}
+
+buffer_t *buffer_from_uint8_array(uint8_t *data, size_t length){
+  buffer_t *result = buffer_create(length);
+  for(int i=0; i<length; i++){
+    result->data[i] = data[i];
+  }
+  return result;
+}
+
+buffer_t *buffer_from_int8_array(int8_t *data, size_t length){
+  buffer_t *result = buffer_create(length);
+  int8_t *nums = (int8_t *) result->data;
+  for(int i=0; i<length; i++){
+    nums[i] = data[i];
+  }
+  return result;
+}
