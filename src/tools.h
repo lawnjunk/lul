@@ -29,4 +29,14 @@
 // null check macro
 #define is_null(ptr) (ptr == NULL)
 
+#define LUL_COLOR_RESET   "\x1B[0m"
+#define LUL_COLOR_RED     "\x1B[31m"
+#define LUL_COLOR_GREEN   "\x1B[32m"
+#define LUL_COLOR_YELLOW  "\x1B[33m"
+#define LUL_COLOR_BLUE    "\x1B[34m"
+#define LUL_COLOR_MAGENTA "\x1B[35m"
+#define LUL_COLOR_CYAN    "\x1B[36m"
+#define LUL_COLOR_WHITE   "\x1B[37m"
+
+
 #endif 

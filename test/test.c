@@ -3,10 +3,9 @@
 #include "lerr.h"
 #include "buffer.h"
 
-
 #define describe(msg) puts(msg); if(true)
 #define should(msg, truth)\
-  printf("  %s: %s\n", truth ? "success" : "fail   ", msg);\
+  printf("  %s: %s\n", truth ? "\x1B[32msuccess\x1b[0m" : "\x1B[31mfail   \x1b[0m", msg);\
 mu_check(truth);\
 
 #define fail() should( "generic fail", false)
