@@ -13,8 +13,11 @@ typedef enum {
 // signed and unsinged ints, at a size_t offset
 // return type (type)
 #define make_read8(name, type) \
-  type name(buffer_t *self, size_t offset){ \
-    type *nums = (type *) self->data; \
+  type name(buffer_t *buf, size_t offset){ \
+    if(offset > buf->length -1) {\
+      err_trouble_on(buf->err, "access out of bounds");\
+    }\
+    type *nums = (type *) buf->data; \
     return nums[offset]; \
   }
 
@@ -28,7 +31,8 @@ make_read8(buffer_read_int8, int8_t);
 /*// return true on success*/
 #define make_write8(name, type) \
   buffer_t *name(buffer_t *buf, type value, size_t offset){ \
-    if(offset > buf->length){\
+    if(err_is_evil(buf->err)) return buf;\
+    if(offset > buf->length - 1){\
       err_trouble_on(buf->err, "write attempt out of bounds");\
       return buf;\
     }\
@@ -175,45 +179,6 @@ make_write32(buffer_write_int32_BE, int32_t, BE);
 /*fill_byte(fill_uint8, uint8_t);*/
 /*fill_byte(fill_int8, int8_t);*/
 /*fill_byte(fill_char, char);*/
-
-/*static void add_buffer_methods(buffer_t *target){*/
-  /*// add methods*/
-  /*add_method(target, read_uint8);*/
-  /*add_method(target, read_int8);*/
-  /*add_method(target, write_uint8);*/
-  /*add_method(target, write_int8);*/
-
-  /*add_method(target, read_uint16_LE);*/
-  /*add_method(target, read_int16_LE);*/
-  /*add_method(target, read_uint16_BE);*/
-  /*add_method(target, read_int16_BE);*/
-
-  /*add_method(target, write_uint16_LE);*/
-  /*add_method(target, write_int16_LE);*/
-  /*add_method(target, write_uint16_BE);*/
-  /*add_method(target, write_int16_BE);*/
-
-  /*add_method(target, read_uint32_LE);*/
-  /*add_method(target, read_int32_LE);*/
-  /*add_method(target, read_uint32_BE);*/
-  /*add_method(target, read_int32_BE);*/
-
-  /*add_method(target, write_uint32_LE);*/
-  /*add_method(target, write_int32_LE);*/
-  /*add_method(target, write_uint32_BE);*/
-  /*add_method(target, write_int32_BE);*/
-
-  /*add_method(target, write_string);*/
-  /*add_method(target, read_string);*/
-  /*add_method(target, to_string);*/
-
-  /*add_method(target, fill_uint8);*/
-  /*add_method(target, fill_int8);*/
-  /*add_method(target, fill_char);*/
-
-  /*add_method(target, slice);*/
-  /*// return new buffer_t*/
-/*}*/
 
 /*buffer_t *slice(buffer_t *self, size_t start, size_t end){*/
   /*if (start > self->length) return NULL;*/
