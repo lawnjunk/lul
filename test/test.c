@@ -11,58 +11,58 @@ mu_check(truth);\
 #define fail() should( "generic fail", false)
 
 MU_TEST(lerr_t_test) {
-  describe("TEST err_create") {
+  describe("TEST err_birth") {
     char * message = "example message";
-    lerr_t *err = err_create(message);
+    lerr_t *err = err_birth(message);
     should("->msg should equal 'example message'", equal_strings(err->msg, message));
     should("->trouble should equal false", err-> trouble == false);
-    err_free(err);
+    err_nuke(err);
   }
 
-  describe("TEST err_free") {
-    lerr_t *err = err_create("a bit of a byte");
-    lerr_t *gone = err_free(err);
+  describe("TEST err_nuke") {
+    lerr_t *err = err_birth("a bit of a byte");
+    lerr_t *gone = err_nuke(err);
     should("should be null", is_null(gone));
   }
 
   describe("TEST err_trouble_on"){
-    lerr_t *err = err_create("a bit of a byte");
+    lerr_t *err = err_birth("a bit of a byte");
     err = err_trouble_on(err, "something failed");
     should("turn truble on",  err->trouble);
     should("turn set err msg",  equal_strings(err->msg, "something failed"));
-    err_free(err);
+    err_nuke(err);
   }
 
   describe("TEST err_trouble_off"){
-    lerr_t *err = err_create("a bit of a byte");
+    lerr_t *err = err_birth("a bit of a byte");
     bool truth = (err_trouble_off(err))->trouble == false;
     should("turn truble off",  truth);
-    err_free(err);
+    err_nuke(err);
   }
 
   describe("TEST err_is_evil"){
-    lerr_t *err = err_create("a bit of a byte");
+    lerr_t *err = err_birth("a bit of a byte");
     should("err should not be evil",  !err_is_evil(err));
     err_trouble_on(err, "");
     should("err should be evil",  err_is_evil(err));
-    err_free(err);
+    err_nuke(err);
   }
 }
 
 MU_TEST(buffer_t_test) {
-  describe("TEST buffer_create"){
-    buffer_t *buf = buffer_create(10);
+  describe("TEST buffer_birth"){
+    buffer_t *buf = buffer_birth(10);
     should("->length should equal 10", buf->length == 10);
     should("->data should not be NULL", !is_null(buf->data));
     should("->err should not be evil", !err_is_evil(buf->err));
     should("->err->msg should be 'generic buffer error'",
         equal_strings(buf->err->msg, "generic buffer error"))
-    buffer_free(buf);
+    buffer_nuke(buf);
   }
 
-  describe("TEST buffer_free"){
-    buffer_t *buf = buffer_create(10);
-    buf = buffer_free(buf);
+  describe("TEST buffer_nuke"){
+    buffer_t *buf = buffer_birth(10);
+    buf = buffer_nuke(buf);
     should("buf should be null", is_null(buf));
   }
 
@@ -78,20 +78,20 @@ MU_TEST(buffer_t_test) {
           (buf->data[4] == 'o') &&
           (buf->data[5] == '\n') 
           ));
-    buffer_free(buf);
+    buffer_nuke(buf);
     fclose(test_data);
   }
   
   describe("TEST buffer_is_evil"){
-    buffer_t *buf = buffer_create(5);
+    buffer_t *buf = buffer_birth(5);
     should("buf should not be evil", !buffer_is_evil(buf));
     err_trouble_on(buf->err, "bad news");
     should("buf should be evil", buffer_is_evil(buf));
-    buffer_free(buf);
+    buffer_nuke(buf);
   }
 
   describe("TEST buffer_read_uint8"){
-    buffer_t *buf = buffer_create(10);
+    buffer_t *buf = buffer_birth(10);
     buf->data[0] = 11;
     buf->data[1] = 22;
     buf->data[2] = 33;
@@ -105,11 +105,11 @@ MU_TEST(buffer_t_test) {
     should("shold be 33", result == 33);
     result = buffer_read_uint8(buf, 3);
     should("shold be 0", result == 0);
-    buffer_free(buf);
+    buffer_nuke(buf);
   }
 
   describe("TEST buffer_read_char"){
-    buffer_t *buf = buffer_create(10);
+    buffer_t *buf = buffer_birth(10);
     buf->data[0] = 'a';
     buf->data[1] = 'b';
     buf->data[2] = 'c';
@@ -123,11 +123,11 @@ MU_TEST(buffer_t_test) {
     should("shold be 'c'", result == 'c');
     result = buffer_read_char(buf, 3);
     should("shold be 0", result == 0);
-    buffer_free(buf);
+    buffer_nuke(buf);
   }
 
   describe("TEST buffer_read_int8"){
-    buffer_t *buf = buffer_create(10);
+    buffer_t *buf = buffer_birth(10);
     buf->data[0] = 11;
     buf->data[1] = 22;
     buf->data[2] = 33;
@@ -141,11 +141,11 @@ MU_TEST(buffer_t_test) {
     should("shold be 33", equal_int8(result, 33));
     result = buffer_read_int8(buf, 3);
     should("shold be 0", equal_int8(result, 0));
-    buffer_free(buf);
+    buffer_nuke(buf);
   }
 
   describe("TEST buffer_write_uint8"){
-    buffer_t *buf = buffer_create(5);  
+    buffer_t *buf = buffer_birth(5);  
     buf = buffer_write_uint8(buf, 11, 0);
     should("write 11 at index 0", equal_uint8(buf->data[0], 11));
     should("buffer should not be evil" , !err_is_evil(buf->err));
@@ -154,11 +154,11 @@ MU_TEST(buffer_t_test) {
     should("buffer should not be evil" , !err_is_evil(buf->err));
     buf = buffer_write_uint8(buf, 100, 6);
     should("buffer should be evil" , err_is_evil(buf->err));
-    buffer_free(buf);
+    buffer_nuke(buf);
   }
 
   describe("TEST buffer_write_char"){
-    buffer_t *buf = buffer_create(5);  
+    buffer_t *buf = buffer_birth(5);  
     buf = buffer_write_char(buf,'a' , 0);
     should("write 11 at index 0", equal_char(buf->data[0], 'a'));
     should("buffer should not be evil" , !err_is_evil(buf->err));
@@ -167,11 +167,11 @@ MU_TEST(buffer_t_test) {
     should("buffer should not be evil" , !err_is_evil(buf->err));
     buf = buffer_write_char(buf, 'c', 6);
     should("buffer should be evil" , err_is_evil(buf->err));
-    buffer_free(buf);
+    buffer_nuke(buf);
   }
 
   describe("TEST buffer_write_int8"){
-    buffer_t *buf = buffer_create(5);  
+    buffer_t *buf = buffer_birth(5);  
     buf = buffer_write_int8(buf, 11, 0);
     should("write 11 at index 0", equal_int8(buf->data[0], 11));
     should("buffer should not be evil" , !err_is_evil(buf->err));
@@ -180,11 +180,11 @@ MU_TEST(buffer_t_test) {
     should("buffer should not be evil" , !err_is_evil(buf->err));
     buf = buffer_write_int8(buf, 100, 6);
     should("buffer should be evil" , err_is_evil(buf->err));
-    buffer_free(buf);
+    buffer_nuke(buf);
   }
 
   describe("TESTING buffer_read_uint16_LE"){
-    buffer_t *buf = buffer_create(5);
+    buffer_t *buf = buffer_birth(5);
     buf->data[0] = 0xff;
     buf->data[1] = 0xee;
     buf->data[2] = 0xaa;
@@ -208,11 +208,11 @@ MU_TEST(buffer_t_test) {
     should("result should equal 0x77dd", equal_uint16(result , 0x77dd));
     should("buf should be evil", buffer_is_evil(buf));
 
-    buffer_free(buf);
+    buffer_nuke(buf);
   }
 
   describe("TESTING buffer_read_int16_LE"){
-    buffer_t *buf = buffer_create(5);
+    buffer_t *buf = buffer_birth(5);
     buf->data[0] = 0xff;
     buf->data[1] = 0xee;
     buf->data[2] = 0xaa;
@@ -236,11 +236,11 @@ MU_TEST(buffer_t_test) {
     should("result should equal 0x77dd", equal_int16(result, 0x77dd));
     should("buf should be evil", buffer_is_evil(buf));
 
-    buffer_free(buf);
+    buffer_nuke(buf);
   }
 
   describe("TESTING buffer_read_uint16_BE"){
-    buffer_t *buf = buffer_create(5);
+    buffer_t *buf = buffer_birth(5);
     buf->data[0] = 0xff;
     buf->data[1] = 0xee;
     buf->data[2] = 0xaa;
@@ -264,11 +264,11 @@ MU_TEST(buffer_t_test) {
     should("result should equal 0xdd77", equal_uint16(result, 0xdd77));
     should("buf should be evil", buffer_is_evil(buf));
 
-    buffer_free(buf);
+    buffer_nuke(buf);
   }
 
   describe("TESTING buffer_read_int16_BE"){
-    buffer_t *buf = buffer_create(5);
+    buffer_t *buf = buffer_birth(5);
     buf->data[0] = 0xff;
     buf->data[1] = 0xee;
     buf->data[2] = 0xaa;
@@ -292,11 +292,11 @@ MU_TEST(buffer_t_test) {
     should("result should equal 0xdd77", equal_int16(result, 0xdd77));
     should("buf should be evil", buffer_is_evil(buf));
 
-    buffer_free(buf);
+    buffer_nuke(buf);
   }
 
   describe("TEST bufffer_write_uint16_LE"){
-    buffer_t *buf = buffer_create(5);
+    buffer_t *buf = buffer_birth(5);
     buf = buffer_write_int16_LE(buf, (uint16_t) 0xffee, 0);
     should("buffer_read_uint16_LE at index 0 should be 0xffee", 
         equal_uint16(buffer_read_int16_LE(buf, 0), 0xffee));
@@ -319,7 +319,7 @@ MU_TEST(buffer_t_test) {
   }
 
   describe("TEST buffer_read_uint32_LE"){
-    buffer_t *buf = buffer_create(5);
+    buffer_t *buf = buffer_birth(5);
     buf->data[0] = 0xff;
     buf->data[1] = 0xee;
     buf->data[2] = 0xaa;
@@ -339,11 +339,11 @@ MU_TEST(buffer_t_test) {
     should("result should equal 0x77ddaaee", equal_uint32(result, 0x77ddaaee));
     should("buf should be evil", buffer_is_evil(buf));
 
-    buffer_free(buf);
+    buffer_nuke(buf);
   }
 
   describe("TEST buffer_read_int32_LE"){
-    buffer_t *buf = buffer_create(5);
+    buffer_t *buf = buffer_birth(5);
     buf->data[0] = 0xff;
     buf->data[1] = 0xee;
     buf->data[2] = 0xaa;
@@ -363,11 +363,11 @@ MU_TEST(buffer_t_test) {
     should("result should equal 0x77ddaaee", equal_int32(result, 0x77ddaaee));
     should("buf should be evil", buffer_is_evil(buf));
 
-    buffer_free(buf);
+    buffer_nuke(buf);
   }
 
   describe("TEST buffer_read_uint32_BE"){
-    buffer_t *buf = buffer_create(5);
+    buffer_t *buf = buffer_birth(5);
     buf->data[0] = 0xff;
     buf->data[1] = 0xee;
     buf->data[2] = 0xaa;
@@ -387,11 +387,11 @@ MU_TEST(buffer_t_test) {
     should("result should equal 0xeeaadd77", equal_uint32(result, 0xeeaadd77));
     should("buf should be evil", buffer_is_evil(buf));
 
-    buffer_free(buf);
+    buffer_nuke(buf);
   }
 
   describe("TEST buffer_read_int32_BE"){
-    buffer_t *buf = buffer_create(5);
+    buffer_t *buf = buffer_birth(5);
     buf->data[0] = 0xff;
     buf->data[1] = 0xee;
     buf->data[2] = 0xaa;
@@ -411,11 +411,11 @@ MU_TEST(buffer_t_test) {
     should("result should equal 0xeeaadd77", equal_int32(result, 0xeeaadd77));
     should("buf should be evil", buffer_is_evil(buf));
 
-    buffer_free(buf);
+    buffer_nuke(buf);
   }
 
   describe("TEST buffer_write_uint32_LE"){
-    buffer_t *buf = buffer_create(5);
+    buffer_t *buf = buffer_birth(5);
     buf = buffer_write_uint32_LE(buf, (uint32_t) 0xaabbccdd, 3);
     should("buf should be evil", buffer_is_evil(buf));
     for(int i=0; i<buf->length; i++){
@@ -442,11 +442,11 @@ MU_TEST(buffer_t_test) {
     should("buffer_read_int32_LE(2) should be 0xaabbccdd", 
         equal_uint32(buffer_read_uint32_LE(buf, 2), 0xaabbccdd));
 
-    buffer_free(buf);
+    buffer_nuke(buf);
   }
 
   describe("TEST buffer_write_int32_LE"){
-    buffer_t *buf = buffer_create(5);
+    buffer_t *buf = buffer_birth(5);
     buf = buffer_write_int32_LE(buf, (int32_t) 0xaabbccdd, 3);
     should("buf should be evil", buffer_is_evil(buf));
     for(int i=0; i<buf->length; i++){
@@ -473,11 +473,11 @@ MU_TEST(buffer_t_test) {
     should("buffer_read_int32_LE(2) should be 0xaabbccdd", 
         equal_int32(buffer_read_int32_LE(buf, 2), 0xaabbccdd));
 
-    buffer_free(buf);
+    buffer_nuke(buf);
   }
 
   describe("TEST buffer_write_uint32_BE"){
-    buffer_t *buf = buffer_create(5);
+    buffer_t *buf = buffer_birth(5);
     buf = buffer_write_uint32_BE(buf, (uint32_t) 0xaabbccdd, 3);
     should("buf should be evil", buffer_is_evil(buf));
     for(int i=0; i<buf->length; i++){
@@ -504,11 +504,11 @@ MU_TEST(buffer_t_test) {
     should("buffer_read_uint32_BE(2) should be 0xaabbccdd", 
         equal_uint32(buffer_read_uint32_BE(buf, 2), 0xaabbccdd));
 
-    buffer_free(buf);
+    buffer_nuke(buf);
   }
 
   describe("TEST buffer_write_int32_BE"){
-    buffer_t *buf = buffer_create(5);
+    buffer_t *buf = buffer_birth(5);
     buf = buffer_write_int32_BE(buf, (int32_t) 0xaabbccdd, 3);
     should("buf should be evil", buffer_is_evil(buf));
     for(int i=0; i<buf->length; i++){
@@ -535,11 +535,11 @@ MU_TEST(buffer_t_test) {
     should("buffer_read_int32_BE(2) should be 0xaabbccdd", 
         equal_int32(buffer_read_int32_BE(buf, 2), 0xaabbccdd));
 
-    buffer_free(buf);
+    buffer_nuke(buf);
   }
 
   describe("TEST buffer_fill_uint8"){
-    buffer_t *buf = buffer_create(5);
+    buffer_t *buf = buffer_birth(5);
     buf = buffer_fill_uint8(buf, (uint8_t) 0xfa);
     for(int i=0; i<buf->length; i++){
       should("buf at index should be 0xfa", equal_uint8(buf->data[i], 0xfa));
@@ -551,11 +551,11 @@ MU_TEST(buffer_t_test) {
     for(int i=0; i<buf->length; i++){
       should("buf at index should be 0xfa", equal_uint8(buf->data[i], 0xfa));
     }
-    buffer_free(buf);
+    buffer_nuke(buf);
   }
 
   describe("TEST buffer_fill_int8"){
-    buffer_t *buf = buffer_create(5);
+    buffer_t *buf = buffer_birth(5);
     buf = buffer_fill_int8(buf, (int8_t) 0xfa);
     for(int i=0; i<buf->length; i++){
       should("buf at index should be 0xfa", equal_int8(buf->data[i], 0xfa));
@@ -567,11 +567,11 @@ MU_TEST(buffer_t_test) {
     for(int i=0; i<buf->length; i++){
       should("buf at index should be 0xfa", equal_int8(buf->data[i], 0xfa));
     }
-    buffer_free(buf);
+    buffer_nuke(buf);
   }
 
   describe("TEST buffer_fill_char"){
-    buffer_t *buf = buffer_create(5);
+    buffer_t *buf = buffer_birth(5);
     buf = buffer_fill_char(buf, 'a');
     for(int i=0; i<buf->length; i++){
       should("buf at index should be 0xfa", equal_char(buf->data[i], 'a'));
@@ -583,11 +583,11 @@ MU_TEST(buffer_t_test) {
     for(int i=0; i<buf->length; i++){
       should("buf at index should be 0xfa", equal_char(buf->data[i], 'a'));
     }
-    buffer_free(buf);
+    buffer_nuke(buf);
   }
 
   describe("TEST buffer_slice"){
-    buffer_t *buf = buffer_create(5); 
+    buffer_t *buf = buffer_birth(5); 
     buf->data[0] = 0xaa;
     buf->data[1] = 0xbb;
     buf->data[2] = 0xcc;
@@ -617,16 +617,16 @@ MU_TEST(buffer_t_test) {
     should("be an evil buffer", buffer_is_evil(evil_end));
     should("have a length of 0", equal_size(evil_start->length, 0));
 
-    buffer_free(evil_start);
-    buffer_free(evil_slice);
-    buffer_free(evil_end);
-    buffer_free(slice);
-    buffer_free(buf);
+    buffer_nuke(evil_start);
+    buffer_nuke(evil_slice);
+    buffer_nuke(evil_end);
+    buffer_nuke(slice);
+    buffer_nuke(buf);
   }
 
   describe("TEST buffer_write_buffer"){
-    buffer_t *dest = buffer_create(8);
-    buffer_t *src = buffer_create(4);
+    buffer_t *dest = buffer_birth(8);
+    buffer_t *src = buffer_birth(4);
     buffer_write_uint32_BE(src, 0xaabbccdd, 0);
     dest = buffer_write_buffer(dest, src, 4, src->length);
     should("dest[4] should be 0xaa", 
@@ -667,8 +667,8 @@ MU_TEST(buffer_t_test) {
     should("dest[7] should be 0xdd", 
         equal_uint8(buffer_read_uint8(dest, 7), 0xdd));
     
-    buffer_free(dest);
-    buffer_free(src);
+    buffer_nuke(dest);
+    buffer_nuke(src);
   }
 
   describe("TEST buffer_from_char_array"){

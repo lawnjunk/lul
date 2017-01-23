@@ -38,9 +38,9 @@ line_t *line_insert_ch(line_t *line, char ch, int offset){
 //   o  c
 //   
 
-line_t *line_create(char *text){
+line_t *line_birth(char *text){
   line_t *result = (line_t *) malloc(sizeof(line_t));  
-  result->buffer = buffer_create(LINE_WITH);
+  result->buffer = buffer_birth(LINE_WITH);
   int i=0;
   while(text[i] != '\0'){
     buffer_write_char(result->buffer, text[i], i);

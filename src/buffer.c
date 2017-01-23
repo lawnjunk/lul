@@ -191,26 +191,26 @@ fill_byte(buffer_fill_char, char);
 buffer_t *buffer_slice(buffer_t *self, size_t start, size_t end){
   buffer_t *result;
   if (err_is_evil(self->err)) {
-    result = buffer_create(0);
+    result = buffer_birth(0);
     result->is_slice = true;
     err_trouble_on(result->err, "cant slice from evil buffer");
     return result;
   }
   if (start > self->length) {
-    result = buffer_create(0);
+    result = buffer_birth(0);
     result->is_slice = true;
     err_trouble_on(result->err, "start can not be grater than buf->length");
     return result;
   }
   if (start > end) {
-    result = buffer_create(0);
+    result = buffer_birth(0);
     result->is_slice = true;
     err_trouble_on(result->err, "start can not be grater than end");
     return result;
   }
   result = (buffer_t *) malloc(sizeof(buffer_t));
   result->data = self->data + start;
-  result->err = err_create("generic buffer error"); // TODO: refacort msgs to macros
+  result->err = err_birth("generic buffer error"); // TODO: refacort msgs to macros
   result->length = (end > self->length ? self->length - start: end - start); 
   result->is_slice = true;
   return result;
@@ -241,21 +241,21 @@ buffer_t *buffer_write_buffer(buffer_t *dest, buffer_t *src, size_t offset, size
   /*return buffer_slice(buf, 0, buf->length);*/
 /*}*/
 
-buffer_t *buffer_create(size_t length){
+buffer_t *buffer_birth(size_t length){
   // create new buffer_t
   buffer_t *result = malloc(sizeof(buffer_t));
   result->data = (uint8_t *) malloc(sizeof(uint8_t) * length);
   result->length = length;
-  result->err = err_create("generic buffer error"); // TODO: refacort msgs to macros
+  result->err = err_birth("generic buffer error"); // TODO: refacort msgs to macros
   result->is_slice = false;
   return result;
 }
 
-buffer_t *buffer_free(buffer_t *buf){
+buffer_t *buffer_nuke(buffer_t *buf){
   if(!buf->is_slice){
     free(buf->data);
   }
-  err_free(buf->err);
+  err_nuke(buf->err);
   free(buf);
   buf = NULL;
   return buf;
@@ -270,7 +270,7 @@ buffer_t *buffer_from_file(FILE *infile){
   size_t length = ftell(infile); // get length
   fseek(infile, 0, SEEK_SET); // go back to begenning of file
   // allocate buffer
-  buffer_t *result = buffer_create(length);
+  buffer_t *result = buffer_birth(length);
   // read bytes
   fread(result->data, length, 1, infile);
   return result;
@@ -278,7 +278,7 @@ buffer_t *buffer_from_file(FILE *infile){
 
 buffer_t *buffer_from_char_array(char *data){
   int length = strlen(data);
-  buffer_t *result = buffer_create(length);
+  buffer_t *result = buffer_birth(length);
   for(int i=0; i<length; i++){
     result->data[i] = data[i];
   }
@@ -286,7 +286,7 @@ buffer_t *buffer_from_char_array(char *data){
 }
 
 buffer_t *buffer_from_uint8_array(uint8_t *data, size_t length){
-  buffer_t *result = buffer_create(length);
+  buffer_t *result = buffer_birth(length);
   for(int i=0; i<length; i++){
     result->data[i] = data[i];
   }
@@ -294,7 +294,7 @@ buffer_t *buffer_from_uint8_array(uint8_t *data, size_t length){
 }
 
 buffer_t *buffer_from_int8_array(int8_t *data, size_t length){
-  buffer_t *result = buffer_create(length);
+  buffer_t *result = buffer_birth(length);
   int8_t *nums = (int8_t *) result->data;
   for(int i=0; i<length; i++){
     nums[i] = data[i];

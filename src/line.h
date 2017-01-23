@@ -13,8 +13,8 @@ struct line {
 };
 
 // line create and destroy
-line_t *line_create(char *text);
-line_t *line_free(line_t *line);
+line_t *line_birth(char *text);
+line_t *line_nuke(line_t *line);
 
 // line operations
 bool line_is_evil(line_t *line);

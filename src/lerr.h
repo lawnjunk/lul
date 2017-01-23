@@ -8,8 +8,8 @@ typedef struct {
 } lerr_t;
 
 // create and free
-lerr_t *err_create(char *message);
-lerr_t *err_free(lerr_t *err);
+lerr_t *err_birth(char *message);
+lerr_t *err_nuke(lerr_t *err);
 
 // operations
 lerr_t *err_trouble_on(lerr_t *err, char *msg);
