@@ -45,6 +45,7 @@ make_read8(buffer_read_char, char);
 
 make_write8(buffer_write_uint8, uint8_t);
 make_write8(buffer_write_int8, int8_t);
+make_write8(buffer_write_char, char);
 
 #define make_read16(name, type, endianness) \
   type name(buffer_t *buf, size_t offset){ \
@@ -254,6 +255,7 @@ buffer_t *buffer_free(buffer_t *buf){
   if(!buf->is_slice){
     free(buf->data);
   }
+  err_free(buf->err);
   free(buf);
   buf = NULL;
   return buf;

@@ -169,6 +169,19 @@ MU_TEST(buffer_t_test) {
     buffer_free(buf);
   }
 
+  describe("TEST buffer_write_char"){
+    buffer_t *buf = buffer_create(5);  
+    buf = buffer_write_char(buf,'a' , 0);
+    should("write 11 at index 0", equal_char(buf->data[0], 'a'));
+    should("buffer should not be evil" , !err_is_evil(buf->err));
+    buf = buffer_write_char(buf, 'b', 2);
+    should("write 22 at index 2", equal_char(buf->data[2], 'b'));
+    should("buffer should not be evil" , !err_is_evil(buf->err));
+    buf = buffer_write_char(buf, 'c', 6);
+    should("buffer should be evil" , err_is_evil(buf->err));
+    buffer_free(buf);
+  }
+
   describe("TEST buffer_write_int8"){
     buffer_t *buf = buffer_create(5);  
     buf = buffer_write_int8(buf, 11, 0);

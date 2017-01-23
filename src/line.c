@@ -1,5 +1,6 @@
-#include "line.h"
 #include "tools.h"
+#include "line.h"
+#include "buffer.h"
 
 #define LINE_WITH 256
 
@@ -9,7 +10,12 @@
  */
 
 char *line_to_string(line_t *line){
-  return line->buffer;
+  char *result = (char *) malloc(sizeof(char) * (line->length + 1)) ;
+  for(int i=0; i<line->length; i++){
+    result[i] = buffer_read_char(line->buffer, i);
+  }
+  result[i] = '\0'
+  return result;
 }
 
 line_t *line_add_ch(line_t *line, char c){

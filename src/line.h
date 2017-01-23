@@ -1,15 +1,15 @@
 #ifndef LUL_LINE
 #define LUL_LINE
 #include "tools.h"
-#include "byte_array.h"
+#include "buffer.h"
 #include "lerr.h"
 
 #define line_t struct line
 struct line {
-  byte_array_t *buffer;
+  buffer_t *buffer;
+  lerr_t *err; 
   int length; // length of string in buffer
   int size ;  // amount of bytes allocated for buffer
-  lerr_t *err; 
 };
 
 // line create and destroy
