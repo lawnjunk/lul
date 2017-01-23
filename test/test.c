@@ -274,6 +274,102 @@ MU_TEST(buffer_t_test) {
     buffer_free(buf);
   }
 
+  describe("TEST bufffer_write_uint16_LE"){
+    buffer_t *buf = buffer_create(5);
+    buf = buffer_write_int16_LE(buf, (uint16_t) 0xffee, 0);
+    should("buffer_read_uint16_LE at index 0 should be 0xffee", 
+        equal_uint16(buffer_read_int16_LE(buf, 0), 0xffee));
+    should("buf should not be evil", !buffer_is_evil(buf));
+
+    buf = buffer_write_int16_LE(buf, (uint16_t) 0xaaff, 3);
+    should("buffer_read_uint16_LE at index 3 should be 0xaaff", 
+        equal_uint16(buffer_read_int16_LE(buf, 3), 0xaaff));
+    should("buf should not be evil", !buffer_is_evil(buf));
+
+    buf = buffer_write_int16_LE(buf, (uint16_t) 0x0, 4);
+    should("buffer_read_uint16_LE at index 3 should be 0xaaff", 
+        equal_uint16(buffer_read_int16_LE(buf, 3), 0xaaff));
+    should("buf should be evil", buffer_is_evil(buf));
+
+    // cant write in to a dirty buffer
+    buf = buffer_write_int16_LE(buf, (uint16_t) 0x0, 3);
+    should("buffer_read_uint16_LE at index 3 should be 0xaaff", 
+        equal_uint16(buffer_read_int16_LE(buf, 3), 0xaaff));
+    should("buf should be evil", buffer_is_evil(buf));
+  }
+
+  describe("TEST bufffer_write_int16_LE"){
+    buffer_t *buf = buffer_create(5);
+    buf = buffer_write_int16_LE(buf, (int16_t) 0xffee, 0);
+    should("buffer_read_int16_LE at index 0 should be 0xffee", 
+        equal_int16(buffer_read_int16_LE(buf, 0), 0xffee));
+    should("buf should not be evil", !buffer_is_evil(buf));
+
+    buf = buffer_write_int16_LE(buf, (int16_t) 0xaaff, 3);
+    should("buffer_read_int16_LE at index 3 should be 0xaaff", 
+        equal_int16(buffer_read_int16_LE(buf, 3), 0xaaff));
+    should("buf should not be evil", !buffer_is_evil(buf));
+
+    buf = buffer_write_int16_LE(buf, (int16_t) 0x0, 4);
+    should("buffer_read_int16_LE at index 3 should be 0xaaff", 
+        equal_int16(buffer_read_int16_LE(buf, 3), 0xaaff));
+    should("buf should be evil", buffer_is_evil(buf));
+
+    // cant write in to a dirty buffer
+    buf = buffer_write_int16_LE(buf, (int16_t) 0x0, 3);
+    should("buffer_read_int16_LE at index 3 should be 0xaaff", 
+        equal_int16(buffer_read_int16_LE(buf, 3), 0xaaff));
+    should("buf should be evil", buffer_is_evil(buf));
+  }
+  
+  describe("TEST bufffer_write_uint16_BE"){
+    buffer_t *buf = buffer_create(5);
+    buf = buffer_write_int16_BE(buf, (uint16_t) 0xffee, 0);
+    should("buffer_read_uint16_BE at index 0 should be 0xffee", 
+        equal_uint16(buffer_read_int16_BE(buf, 0), 0xffee));
+    should("buf should not be evil", !buffer_is_evil(buf));
+
+    buf = buffer_write_int16_BE(buf, (uint16_t) 0xaaff, 3);
+    should("buffer_read_uint16_BE at index 3 should be 0xaaff", 
+        equal_uint16(buffer_read_int16_BE(buf, 3), 0xaaff));
+    should("buf should not be evil", !buffer_is_evil(buf));
+
+    buf = buffer_write_int16_BE(buf, (uint16_t) 0x0, 4);
+    should("buffer_read_uint16_BE at index 3 should be 0xaaff", 
+        equal_uint16(buffer_read_int16_BE(buf, 3), 0xaaff));
+    should("buf should be evil", buffer_is_evil(buf));
+
+    // cant write in to a dirty buffer
+    buf = buffer_write_int16_BE(buf, (uint16_t) 0x0, 3);
+    should("buffer_read_uint16_BE at index 3 should be 0xaaff", 
+        equal_uint16(buffer_read_int16_BE(buf, 3), 0xaaff));
+    should("buf should be evil", buffer_is_evil(buf));
+  }
+
+  describe("TEST bufffer_write_int16_BE"){
+    buffer_t *buf = buffer_create(5);
+    buf = buffer_write_int16_BE(buf, (int16_t) 0xffee, 0);
+    should("buffer_read_int16_BE at index 0 should be 0xffee", 
+        equal_int16(buffer_read_int16_BE(buf, 0), 0xffee));
+    should("buf should not be evil", !buffer_is_evil(buf));
+
+    buf = buffer_write_int16_BE(buf, (int16_t) 0xaaff, 3);
+    should("buffer_read_int16_BE at index 3 should be 0xaaff", 
+        equal_int16(buffer_read_int16_BE(buf, 3), 0xaaff));
+    should("buf should not be evil", !buffer_is_evil(buf));
+
+    buf = buffer_write_int16_BE(buf, (int16_t) 0x0, 4);
+    should("buffer_read_int16_BE at index 3 should be 0xaaff", 
+        equal_int16(buffer_read_int16_BE(buf, 3), 0xaaff));
+    should("buf should be evil", buffer_is_evil(buf));
+
+    // cant write in to a dirty buffer
+    buf = buffer_write_int16_BE(buf, (int16_t) 0x0, 3);
+    should("buffer_read_int16_BE at index 3 should be 0xaaff", 
+        equal_int16(buffer_read_int16_BE(buf, 3), 0xaaff));
+    should("buf should be evil", buffer_is_evil(buf));
+  }
+
   describe("TEST buffer_read_uint32_LE"){
     buffer_t *buf = buffer_create(5);
     buf->data[0] = 0xff;

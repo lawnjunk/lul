@@ -62,20 +62,23 @@ make_read16(buffer_read_int16_LE, int16_t, LE);
 make_read16(buffer_read_uint16_BE, uint16_t, BE);
 make_read16(buffer_read_int16_BE, int16_t, BE);
 
-/*#define write_int16(name, type, endianness) \*/
-  /*buffer_t * name(buffer_t *self, type value, size_t offset){ \*/
-    /*if(offset > self->length) \*/
-    /*return false;  \*/
-    /*uint8_t *nums = (uint8_t *) self->data; \*/
-    /*nums[offset + (endianness == LE ? 0 : 1)] = value & 0xff; \*/
-    /*nums[offset + (endianness == LE ? 1 : 0)] = value >> 8; \*/
-    /*return true; \*/
-  /*}*/
+#define write_int16(name, type, endianness) \
+  buffer_t * name(buffer_t *buf, type value, size_t offset){ \
+    if(err_is_evil(buf->err)) return buf;\
+    if(offset > buf->length - 2){\
+      err_trouble_on(buf->err, "write attempt out of bounds");\
+      return buf;\
+    }\
+    uint8_t *nums = (uint8_t *) buf->data; \
+    nums[offset + (endianness == LE ? 0 : 1)] = value & 0xff; \
+    nums[offset + (endianness == LE ? 1 : 0)] = value >> 8; \
+    return buf;\
+  }
 
-/*write_int16(write_uint16_LE, uint16_t, LE);*/
-/*write_int16(write_int16_LE, int16_t, LE);*/
-/*write_int16(write_uint16_BE, uint16_t, BE);*/
-/*write_int16(write_int16_BE, int16_t, BE);*/
+write_int16(buffer_write_uint16_LE, uint16_t, LE);
+write_int16(buffer_write_int16_LE, int16_t, LE);
+write_int16(buffer_write_uint16_BE, uint16_t, BE);
+write_int16(buffer_write_int16_BE, int16_t, BE);
 
 #define read_int32(name, type, endianness) \
   type name(buffer_t *self, size_t offset){ \
