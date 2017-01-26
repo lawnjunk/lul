@@ -10,6 +10,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <time.h>
 
 // MIN and MAX macros
 #define min(a,b) (((a)<(b))?(a):(b))

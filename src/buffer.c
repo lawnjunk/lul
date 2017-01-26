@@ -9,17 +9,20 @@ typedef enum {
 /*// type decliations for functions that are used out of order*/
 /*buffer_t *slice(buffer_t *self, size_t start, size_t end);*/
 
+// private funk
+static buffer_t *buffer_trouble_on(buffer_t *buf, char *msg){
+  flub_trouble_on(buf->err, msg);
+  return buf;
+}
+
 // make_read8 creates a functions for reading 8bit
 // signed and unsinged ints, at a size_t offset
 // return type (type)
 #define make_read8(name, type) \
   type name(buffer_t *buf, size_t offset){ \
-    if(offset > buf->length -1) {\
-      flub_trouble_on(buf->err, "access out of bounds");\
-    }\
-    /*type *nums = (type *) buf->data; \*/ \
+    if(offset > buf->length -1) \
+      buffer_trouble_on(buf, "access out of bounds");\
     return (type) buf->data[offset];\
-    /*return nums[offset]; \*/ \
   }
 
 make_read8(buffer_read_uint8, uint8_t);
@@ -33,11 +36,9 @@ make_read8(buffer_read_char, char);
 /*// return true on success*/
 #define make_write8(name, type) \
   buffer_t *name(buffer_t *buf, type value, size_t offset){ \
-    if(flub_is_evil(buf->err)) return buf;\
-    if(offset > buf->length - 1){\
-      flub_trouble_on(buf->err, "write attempt out of bounds");\
-      return buf;\
-    }\
+    if(buffer_is_evil(buf)) return buf;\
+    if(offset > buf->length - 1)\
+      return buffer_trouble_on(buf, "write attempt out of bounds");\
     type *nums = (type *) buf->data; \
     nums[offset] = value; \
     return buf; \
@@ -51,7 +52,7 @@ make_write8(buffer_write_char, char);
   type name(buffer_t *buf, size_t offset){ \
     uint8_t *nums = (uint8_t *) buf->data; \
     if (offset > buf->length - 2){\
-      flub_trouble_on(buf->err, "access out of bounds");\
+      buffer_trouble_on(buf, "access out of bounds");\
       offset = buf->length - 2;\
     }\
     type result; \
@@ -67,16 +68,18 @@ make_read16(buffer_read_int16_BE, int16_t, BE);
 
 #define write_int16(name, type, endianness) \
   buffer_t * name(buffer_t *buf, type value, size_t offset){ \
-    if(flub_is_evil(buf->err)) return buf;\
-    if(offset > buf->length - 2){\
-      flub_trouble_on(buf->err, "write attempt out of bounds");\
-      return buf;\
-    }\
+    if(buffer_is_evil(buf)) return buf;\
+    if(offset > buf->length -2 )\
+      return buffer_trouble_on(buf, "write attempt out of bounds");\
     uint8_t *nums = (uint8_t *) buf->data; \
     nums[offset + (endianness == LE ? 0 : 1)] = value & 0xff; \
     nums[offset + (endianness == LE ? 1 : 0)] = value >> 8; \
     return buf;\
   }
+    /*if(offset > buf->length - 2){\*/
+      /*flub_trouble_on(buf->err, "write attempt out of bounds");\*/
+      /*return buf;\*/
+    /*}\*/
 
 write_int16(buffer_write_uint16_LE, uint16_t, LE);
 write_int16(buffer_write_int16_LE, int16_t, LE);
@@ -87,7 +90,7 @@ write_int16(buffer_write_int16_BE, int16_t, BE);
   type name(buffer_t *self, size_t offset){ \
     uint8_t *nums = (uint8_t *) self->data; \
     if(offset > self->length - 4){\
-      flub_trouble_on(self->err, "access out of bounds");\
+      buffer_trouble_on(self, "access out of bounds");\
       offset = self->length - 4;\
     }\
     type result =            nums[offset + (endianness == LE ? 3 : 0)]; \
@@ -105,11 +108,9 @@ read_int32(buffer_read_int32_BE, int32_t, BE);
 /*// to not add checks at runtime!*/
 #define make_write32(name, type, endianness) \
   buffer_t * name(buffer_t *buf, type value, size_t offset){ \
-    if(flub_is_evil(buf->err)) return buf;\
-    if(offset > buf->length - 4) {\
-      flub_trouble_on(buf->err, "attempt out of bounds write");\
-      return buf;\
-    }\
+    if(buffer_is_evil(buf)) return buf;\
+    if(offset > buf->length - 4) \
+      return buffer_trouble_on(buf, "attempt out of bounds write");\
     uint8_t *nums = (uint8_t *) buf->data; \
     nums[offset + (endianness == LE ? 0 : 3)] = value & 0xff ; \
     nums[offset + (endianness == LE ? 1 : 2)] = (value >> 8) & 0xff; \
@@ -175,13 +176,10 @@ make_write32(buffer_write_int32_BE, int32_t, BE);
 /*}*/
 
 #define fill_byte(name, type) \
-  buffer_t *name(buffer_t *self,  type num){ \
-    if(flub_is_evil(self->err)) return self;\
-    type *buf = (type*) self->data; \
-    for(int i=0; i<self->length; i++){ \
-      buf[i] = num; \
-    } \
-    return self;\
+  buffer_t *name(buffer_t *buf,  type num){ \
+    if(buffer_is_evil(buf)) return buf;\
+    memset(buf->data, num, buf->length);\
+    return buf;\
   }
 
 fill_byte(buffer_fill_uint8, uint8_t);
@@ -190,24 +188,12 @@ fill_byte(buffer_fill_char, char);
 
 buffer_t *buffer_slice(buffer_t *self, size_t start, size_t end){
   buffer_t *result;
-  if (flub_is_evil(self->err)) {
-    result = buffer_birth(0);
-    result->is_slice = true;
-    flub_trouble_on(result->err, "cant slice from evil buffer");
-    return result;
-  }
-  if (start > self->length) {
-    result = buffer_birth(0);
-    result->is_slice = true;
-    flub_trouble_on(result->err, "start can not be grater than buf->length");
-    return result;
-  }
-  if (start > end) {
-    result = buffer_birth(0);
-    result->is_slice = true;
-    flub_trouble_on(result->err, "start can not be grater than end");
-    return result;
-  }
+  if (buffer_is_evil(self)) 
+    return buffer_trouble_on(buffer_birth(0), "cant slice from evil buffer");
+  if (start > self->length) 
+    return  buffer_trouble_on(buffer_birth(0), "start can not be grater than buf->length");
+  if (start > end) 
+    return buffer_trouble_on(buffer_birth(0), "start can not be grater than end");
   result = (buffer_t *) malloc(sizeof(buffer_t));
   result->data = self->data + start;
   result->err = flub_birth("generic buffer error"); // TODO: refacort msgs to macros
@@ -221,25 +207,22 @@ buffer_t *buffer_slice(buffer_t *self, size_t start, size_t end){
 /*check = 7 - 4  (3)*/
 
 buffer_t *buffer_write_buffer(buffer_t *dest, buffer_t *src, size_t offset, size_t count){
-  if(flub_is_evil(dest->err)) return dest;
-  if(flub_is_evil(src->err)){
-    flub_trouble_on(dest->err, "src buffer was evil");
-    return dest;
-  }
-  if(offset > (dest->length - count)){
-    flub_trouble_on(dest->err, "not enough room");
-    return dest;
-  }
-  uint8_t *data = dest->data;
-  for(size_t i=0; i<count; i++){
-    dest->data[offset + i] = src->data[i];
-  }
+  if(buffer_is_evil(dest)) return dest;
+  if(buffer_is_evil(src))
+    return buffer_trouble_on(dest, "src buffer was evil");
+  if(offset > (dest->length - count))
+    return buffer_trouble_on(dest, "not enough room");
+  memcpy((dest->data) + offset, src->data, count);
   return dest;
 }
 
-/*buffer_t *buffer_copy(buffer_t *buf){*/
-  /*return buffer_slice(buf, 0, buf->length);*/
-/*}*/
+// TODO: TEST
+buffer_t *buffer_copy(buffer_t *buf){
+  if(buffer_is_evil(buf)) return buf; 
+  buffer_t *result = buffer_birth(buf->length);
+  memcpy(result->data, buf->data, buf->length);
+  return result;
+}
 
 buffer_t *buffer_birth(size_t length){
   // create new buffer_t
@@ -279,25 +262,18 @@ buffer_t *buffer_from_file(FILE *infile){
 buffer_t *buffer_from_char_array(char *data){
   int length = strlen(data);
   buffer_t *result = buffer_birth(length);
-  for(int i=0; i<length; i++){
-    result->data[i] = data[i];
-  }
+  memcpy(result->data, data, length);
   return result;
 }
 
 buffer_t *buffer_from_uint8_array(uint8_t *data, size_t length){
   buffer_t *result = buffer_birth(length);
-  for(int i=0; i<length; i++){
-    result->data[i] = data[i];
-  }
+  memcpy(result->data, data, length);
   return result;
 }
 
 buffer_t *buffer_from_int8_array(int8_t *data, size_t length){
   buffer_t *result = buffer_birth(length);
-  int8_t *nums = (int8_t *) result->data;
-  for(int i=0; i<length; i++){
-    nums[i] = data[i];
-  }
+  memcpy(result->data, data, length);
   return result;
 }
