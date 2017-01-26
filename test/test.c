@@ -1,7 +1,7 @@
 #include "test.h"
-#include "flub_test.c"
-#include "buffer_test.c"
-#include "line_test.c"
+#include "flub_test.h"
+#include "buffer_test.h"
+#include "line_test.h"
 
 MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(flub_t_test);

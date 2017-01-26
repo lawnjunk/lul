@@ -1,6 +1,6 @@
 #ifndef LUL_TOOLS
 #define LUL_TOOLS
-#define DEBUG
+//#define DEBUG
 
 // # unified header for all external libs
 #include <sys/time.h>
@@ -47,7 +47,7 @@ printf(LUL_COLOR_MAGENTA); printf("DEBUG: ");\
 printf(LUL_COLOR_CYAN); printf(args);\
 printf(LUL_COLOR_RESET); puts("");
 #else 
-#define dlog 
+#define dlog(args ...)
 #endif
 
 #endif 
