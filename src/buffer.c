@@ -206,6 +206,24 @@ buffer_t *buffer_slice(buffer_t *self, size_t start, size_t end){
    /*0123  4*/
 /*check = 7 - 4  (3)*/
 
+/*1234*/
+/*haha*/
+/*0123456789*/
+/*01234*/
+/*hello*/
+
+/*l 5*/
+
+buffer_t *buffer_write_string(buffer_t *buf, char *text, size_t offset){
+  if(buffer_is_evil(buf)) return buf;
+  int length = strlen(text);
+  if(offset + length > buf->length)
+    return buffer_trouble_on(buf, "not enough room");
+  if(length > 0)
+    memcpy(buf, text, length);
+  return buf;
+}
+
 buffer_t *buffer_write_buffer(buffer_t *dest, buffer_t *src, size_t offset, size_t count){
   if(buffer_is_evil(dest)) return dest;
   if(buffer_is_evil(src))
