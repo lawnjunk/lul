@@ -1,7 +1,9 @@
 #ifndef LUL_TOOLS
 #define LUL_TOOLS
+#define DEBUG
 
 // # unified header for all external libs
+#include <sys/time.h>
 #include <ncurses.h>
 #include <stdbool.h>
 #include <signal.h>
@@ -39,5 +41,13 @@
 #define LUL_COLOR_CYAN    "\x1B[36m"
 #define LUL_COLOR_WHITE   "\x1B[37m"
 
+#ifdef DEBUG
+#define dlog(args...)\
+printf(LUL_COLOR_MAGENTA); printf("DEBUG: ");\
+printf(LUL_COLOR_CYAN); printf(args);\
+printf(LUL_COLOR_RESET); puts("");
+#else 
+#define dlog 
+#endif
 
 #endif 

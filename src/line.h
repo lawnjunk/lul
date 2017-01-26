@@ -4,6 +4,8 @@
 #include "buffer.h"
 #include "flub.h"
 
+#define LINE_WITH 1000
+
 #define line_t struct line
 struct line {
   buffer_t *buffer;
