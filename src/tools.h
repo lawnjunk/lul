@@ -18,6 +18,13 @@
 #define min(a,b) (((a)<(b))?(a):(b))
 #define max(a,b) (((a)>(b))?(a):(b))
 
+// cool for loop macro
+#define range(x, s, e)\
+  for(int x = s; x < e; x++)
+
+#define range_down(x, s, e)\
+  for(int x = s; x > e; x--)
+
 // cast and compare macros
 #define equal_strings(a, b) (strcmp(a, b) == 0)
 #define equal_uint8(a, b) ((uint8_t) a == (uint8_t) b)

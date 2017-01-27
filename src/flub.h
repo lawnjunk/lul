@@ -8,8 +8,8 @@ typedef struct {
 } flub_t;
 
 // create and free
-flub_t *flub_birth(char *message);
-flub_t *flub_nuke(flub_t *err);
+flub_t *flub_create(char *message);
+flub_t *flub_free(flub_t *err);
 
 // operations
 flub_t *flub_trouble_on(flub_t *err, char *msg);

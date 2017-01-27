@@ -8,7 +8,7 @@ typedef struct {
   uint8_t *data;
   size_t length;
   flub_t *err;
-  bool is_slice; // necessary for buffer_nuke
+  bool is_slice; // necessary for buffer_free
 } buffer_t;
 
 // uint8
@@ -72,8 +72,8 @@ buffer_t *buffer_write_buffer(buffer_t *dest, buffer_t *src, size_t offset, size
 bool buffer_is_evil(buffer_t *buf);
 
 // create create and free
-buffer_t *buffer_nuke(buffer_t *buf);
-buffer_t *buffer_birth(size_t length);
+buffer_t *buffer_free(buffer_t *buf);
+buffer_t *buffer_create(size_t length);
 
 buffer_t *buffer_from_char_array(char *data);
 buffer_t *buffer_from_int8_array(int8_t *data, size_t length);

@@ -3,6 +3,7 @@
 #include "flub.h"
 #include "buffer.h"
 #include "line.h"
+#include "doc.h"
 
 #define describe(msg) puts(msg); if(true)
 

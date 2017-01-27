@@ -198,14 +198,14 @@ buffer_t *buffer_slice(buffer_t *self, size_t start, size_t end){
   dlog("buffer_slice");
   buffer_t *result;
   if (buffer_is_evil(self)) 
-    return buffer_trouble_on(buffer_birth(0), "cant slice from evil buffer");
+    return buffer_trouble_on(buffer_create(0), "cant slice from evil buffer");
   if (start > self->length) 
-    return  buffer_trouble_on(buffer_birth(0), "start can not be grater than buf->length");
+    return  buffer_trouble_on(buffer_create(0), "start can not be grater than buf->length");
   if (start > end) 
-    return buffer_trouble_on(buffer_birth(0), "start can not be grater than end");
+    return buffer_trouble_on(buffer_create(0), "start can not be grater than end");
   result = (buffer_t *) malloc(sizeof(buffer_t));
   result->data = self->data + start;
-  result->err = flub_birth("generic buffer error"); // TODO: refacort msgs to macros
+  result->err = flub_create("generic buffer error"); // TODO: refacort msgs to macros
   result->length = (end > self->length ? self->length - start: end - start); 
   result->is_slice = true;
   return result;
@@ -249,28 +249,28 @@ buffer_t *buffer_write_buffer(buffer_t *dest, buffer_t *src, size_t offset, size
 buffer_t *buffer_copy(buffer_t *buf){
   dlog("buffer_copy");
   if(buffer_is_evil(buf)) return buf; 
-  buffer_t *result = buffer_birth(buf->length);
+  buffer_t *result = buffer_create(buf->length);
   memcpy(result->data, buf->data, buf->length);
   return result;
 }
 
-buffer_t *buffer_birth(size_t length){
-  dlog("buffer_birth");
+buffer_t *buffer_create(size_t length){
+  dlog("buffer_create");
   // create new buffer_t
   buffer_t *result = malloc(sizeof(buffer_t));
   result->data = (uint8_t *) malloc(sizeof(uint8_t) * length);
   result->length = length;
-  result->err = flub_birth("generic buffer error"); // TODO: refacort msgs to macros
+  result->err = flub_create("generic buffer error"); // TODO: refacort msgs to macros
   result->is_slice = false;
   return result;
 }
 
-buffer_t *buffer_nuke(buffer_t *buf){
-  dlog("buffer_nuke");
+buffer_t *buffer_free(buffer_t *buf){
+  dlog("buffer_free");
   if(!buf->is_slice){
     free(buf->data);
   }
-  flub_nuke(buf->err);
+  flub_free(buf->err);
   free(buf);
   buf = NULL;
   return buf;
@@ -287,7 +287,7 @@ buffer_t *buffer_from_file(FILE *infile){
   size_t length = ftell(infile); // get length
   fseek(infile, 0, SEEK_SET); // go back to begenning of file
   // allocate buffer
-  buffer_t *result = buffer_birth(length);
+  buffer_t *result = buffer_create(length);
   // read bytes
   fread(result->data, length, 1, infile);
   return result;
@@ -296,21 +296,21 @@ buffer_t *buffer_from_file(FILE *infile){
 buffer_t *buffer_from_char_array(char *data){
   dlog("buffer_from_char_array");
   int length = strlen(data);
-  buffer_t *result = buffer_birth(length);
+  buffer_t *result = buffer_create(length);
   memcpy(result->data, data, length);
   return result;
 }
 
 buffer_t *buffer_from_uint8_array(uint8_t *data, size_t length){
   dlog("buffer_from_uint8_array");
-  buffer_t *result = buffer_birth(length);
+  buffer_t *result = buffer_create(length);
   memcpy(result->data, data, length);
   return result;
 }
 
 buffer_t *buffer_from_int8_array(int8_t *data, size_t length){
   dlog("buffer_from_int8_array");
-  buffer_t *result = buffer_birth(length);
+  buffer_t *result = buffer_create(length);
   memcpy(result->data, data, length);
   return result;
 }

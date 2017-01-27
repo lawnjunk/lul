@@ -1,16 +1,16 @@
 #include "tools.h"
 #include "flub.h"
 
-flub_t *flub_birth(char *msg){
-  dlog("flub_birth");
+flub_t *flub_create(char *msg){
+  dlog("flub_create");
   flub_t *result = (flub_t *) malloc(sizeof(flub_t));
   result->msg = msg;
   result->trouble = false;
   return result;
 }
 
-flub_t *flub_nuke(flub_t *err){
-  dlog("flub_nuke");
+flub_t *flub_free(flub_t *err){
+  dlog("flub_free");
   free(err);
   err = NULL;
   return err;

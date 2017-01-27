@@ -33,7 +33,7 @@ char *line_to_string(line_t *line){
   return result;
 }
 
-char line_read_char(line_t *line, int offset){
+char line_read_char(line_t *line, unsigned int offset){
   return buffer_read_char(line->buffer, offset);
 }
 
@@ -46,7 +46,7 @@ line_t *line_append_char(line_t *line, char ch){
   return line;
 }
 
-line_t *line_insert_char(line_t *line, char ch, int offset){
+line_t *line_insert_char(line_t *line, char ch, unsigned int offset){
   dlog("line_insert_ch");
   if(line_is_evil(line)) return line;
   if(line->length >= line->size) 
@@ -63,7 +63,7 @@ line_t *line_insert_char(line_t *line, char ch, int offset){
 /*012345*/
 /*hellox*/
 
-line_t *line_delete_char(line_t *line, int offset){
+line_t *line_delete_char(line_t *line, unsigned int offset){
   dlog("line_delete_char");
   if(line_is_evil(line)) return line;
   if(line->length == 0)
@@ -83,21 +83,21 @@ line_t *line_delete_char(line_t *line, int offset){
 //   o  c
 //   
 
-line_t *line_birth(char *text){
-  dlog("line_birth");
+line_t *line_create(char *text){
+  dlog("line_create");
   line_t *result = (line_t *) malloc(sizeof(line_t));  
-  result->buffer = buffer_birth(LINE_WITH);
+  result->buffer = buffer_create(LINE_WITH);
   buffer_write_string(result->buffer, text, 0);
   result->length = strlen(text);
-  result->err = flub_birth("generic flub error");
+  result->err = flub_create("generic flub error");
   result->size = LINE_WITH;
   return result;
 }
 
-line_t *line_nuke(line_t *line){
-  dlog("line_nuke");
-  buffer_nuke(line->buffer);
-  flub_nuke(line->err);
+line_t *line_free(line_t *line){
+  dlog("line_free");
+  buffer_free(line->buffer);
+  flub_free(line->err);
   free(line);
   line = NULL;
   return line;
