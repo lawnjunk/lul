@@ -113,41 +113,36 @@ MU_TEST(line_t_test) {
   describe("line_insert_char"){
     line_t *line = line_birth("booya!");
 
-    line_insert_char(line, '!', 0);
+    line_insert_ch(line, '!', 0);
     char *text = line_to_string(line);
     okay(line, "can insert at 0", equal_strings(text, "!booya!"));
 
-    line_insert_char(line, '!', 2);
+    line_insert_ch(line, '!', 2);
     text = line_to_string(line);
     okay(line, "can insert at 2", equal_strings(text, "!b!ooya!"));
 
-    line_insert_char(line, 'a', line->length );
+    line_insert_ch(line, 'a', line->length );
     text = line_to_string(line);
     okay(line, "can insert at line length", equal_strings(text, "!b!ooya!a"));
     okay(line, "should not be evil", !line_is_evil(line));
 
-    line_insert_char(line, 'a', line->length  + 1);
+    line_insert_ch(line, 'a', line->length  + 1);
+    text = line_to_string(line);
     okay(line, "will be evil if try to insert past line length",
         line_is_evil(line));
 
-    line_insert_char(line, 'a', 0);
-    text = line_to_string(line);
+    line_insert_ch(line, 'a', 0);
     okay(line, "will not change the string for evil operations",
         equal_strings(text, "!b!ooya!a"));
     free(text);
 
-    line_t *no_room = line_birth("hello");
-    no_room->size=5;
-    line_insert_char(no_room, 'a', 0);
-    text = line_to_string(no_room);
-    okay(no_room, "will not right to a full string",
-        equal_strings(text, "hello"));
-    okay(no_room, "will be evil on insert to full buffer",
-        line_is_evil(no_room));
-    free(text);
+    line_t no_room = line_birth("");
+    line_insert_ch(line, 'a', 0);
+    okay(line, "will not right to a fool string",
+        equal_strings(text, "!b!ooya!a"));
 
+    free(text);
     line_nuke(line);
-    line_nuke(no_room);
   }
 
 }
