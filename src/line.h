@@ -17,6 +17,7 @@ struct line {
 // line create and destroy
 line_t *line_create(char *text);
 line_t *line_free(line_t *line);
+line_t *line_trouble_on(line_t *line, char *msg);
 
 // line operations
 bool line_is_evil(line_t *line);

@@ -14,7 +14,7 @@ bool line_is_evil(line_t *line){
   return flub_is_evil(line->err);
 }
 
-static line_t *line_trouble_on(line_t *line, char *msg){
+line_t *line_trouble_on(line_t *line, char *msg){
   dlog("line_trouble_on");
   flub_trouble_on(line->err, msg);
   return line;
