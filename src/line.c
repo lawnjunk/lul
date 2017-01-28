@@ -10,6 +10,7 @@
 
 bool line_is_evil(line_t *line){
   dlog("line_is_evil");
+  if(is_null(line)) return true;
   return flub_is_evil(line->err);
 }
 

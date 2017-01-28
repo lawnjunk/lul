@@ -18,6 +18,7 @@ flub_t *flub_free(flub_t *err){
 
 bool flub_is_evil(flub_t *err){
   dlog("flub_is_evil");
+  if(is_null(err)) return true;
   return err->trouble;
 }
 

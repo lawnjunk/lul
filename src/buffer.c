@@ -278,6 +278,7 @@ buffer_t *buffer_free(buffer_t *buf){
 
 bool buffer_is_evil(buffer_t *buf){
   dlog("buffer_is_evil");
+  if(is_null(buf)) return true;
   return flub_is_evil(buf->err);
 }
 

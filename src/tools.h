@@ -14,6 +14,11 @@
 #include <ctype.h>
 #include <time.h>
 
+// memory management macro
+// l_free is used to force vars to be assined NULL after calling
+// the appropriate type_free destructor
+#define l_free(x, type) x = type ## _free(x)
+
 // MIN and MAX macros
 #define min(a,b) (((a)<(b))?(a):(b))
 #define max(a,b) (((a)>(b))?(a):(b))
@@ -26,15 +31,15 @@
   for(int x = s; x > e; x--)
 
 // cast and compare macros
-#define equal_strings(a, b) (strcmp(a, b) == 0)
-#define equal_uint8(a, b) ((uint8_t) a == (uint8_t) b)
-#define equal_int8(a, b) ((int8_t) a == (int8_t) b)
-#define equal_uint16(a, b) ((uint16_t) a == (uint16_t) b)
-#define equal_int16(a, b) ((int16_t) a == (int16_t) b)
-#define equal_uint32(a, b) ((uint32_t) a == (uint32_t) b)
-#define equal_int32(a, b) ((int32_t) a == (int32_t) b)
-#define equal_char(a, b) ((char) a == (char) b)
-#define equal_size(a, b) ((size_t) a == (size_t) b)
+#define eq_str(a, b) (strcmp(a, b) == 0)
+#define eq_uint8(a, b) ((uint8_t) a == (uint8_t) b)
+#define eq_int8(a, b) ((int8_t) a == (int8_t) b)
+#define eq_uint16(a, b) ((uint16_t) a == (uint16_t) b)
+#define eq_int16(a, b) ((int16_t) a == (int16_t) b)
+#define eq_uint32(a, b) ((uint32_t) a == (uint32_t) b)
+#define eq_int32(a, b) ((int32_t) a == (int32_t) b)
+#define eq_char(a, b) ((char) a == (char) b)
+#define eq_size(a, b) ((size_t) a == (size_t) b)
 
 // null check macro
 #define is_null(ptr) (ptr == NULL)

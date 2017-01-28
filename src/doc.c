@@ -27,9 +27,21 @@ doc_t *doc_free(doc_t *doc){
   }
 
   free(doc->lines);
+
   // free err
   flub_free(doc->err);
   // free line
   free(doc); doc = NULL;
   return doc;
 }
+
+bool doc_is_evil(doc_t *doc){
+  if(is_null(doc)) return true;
+  return flub_is_evil(doc->err);
+}
+
+doc_t *doc_trouble_on(doc_t *doc, char *msg){
+  flub_trouble_on(doc->err, msg);
+  return doc;
+}
+

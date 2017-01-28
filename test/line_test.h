@@ -46,12 +46,12 @@ MU_TEST(line_t_test) {
     line_t *line = line_create("lulwat");
     
     char *lul = line_to_string(line);
-    okay(lul, "should equal 'lulwat'", equal_strings(lul, "lulwat"));
+    okay(lul, "should equal 'lulwat'", eq_str(lul, "lulwat"));
     free(lul);
 
     line_t *empty = line_create("");
     lul = line_to_string(empty);
-    okay(lul, "should equal ''", equal_strings(lul, ""));
+    okay(lul, "should equal ''", eq_str(lul, ""));
     free(lul);
 
     line_free(line);
@@ -82,22 +82,22 @@ MU_TEST(line_t_test) {
 
     line_delete_char(line, 0);
     char *result = line_to_string(line);
-    okay(line, "should be able to delete first index", equal_strings(result, "bc"));
+    okay(line, "should be able to delete first index", eq_str(result, "bc"));
     okay(line->length, "should shrink on delete", line->length == 2);  
     okay(line, "should not be evil after delete", !line_is_evil(line));
 
     line_delete_char(line, 1);
     result = line_to_string(line);
     okay(line->length, "should equal 1", line->length == 1);  
-    okay(line, "should be 'b'", equal_strings(result, "b"));
+    okay(line, "should be 'b'", eq_str(result, "b"));
     okay(line, "should not be evil", !line_is_evil(line));
 
     line_delete_char(line, 0);
     result = line_to_string(line);
     okay(line->length, "should equal 0", line->length == 0);  
-    okay(line, "should be ''", equal_strings(result, ""));
+    okay(line, "should be ''", eq_str(result, ""));
 
-    okay(wat, "cmp '' ''", equal_strings("", ""));
+    okay(wat, "cmp '' ''", eq_str("", ""));
     okay(line, "should not be evil", !line_is_evil(line));
 
     line_delete_char(line, 0);
@@ -115,15 +115,15 @@ MU_TEST(line_t_test) {
 
     line_insert_char(line, '!', 0);
     char *text = line_to_string(line);
-    okay(line, "can insert at 0", equal_strings(text, "!booya!"));
+    okay(line, "can insert at 0", eq_str(text, "!booya!"));
 
     line_insert_char(line, '!', 2);
     text = line_to_string(line);
-    okay(line, "can insert at 2", equal_strings(text, "!b!ooya!"));
+    okay(line, "can insert at 2", eq_str(text, "!b!ooya!"));
 
     line_insert_char(line, 'a', line->length );
     text = line_to_string(line);
-    okay(line, "can insert at line length", equal_strings(text, "!b!ooya!a"));
+    okay(line, "can insert at line length", eq_str(text, "!b!ooya!a"));
     okay(line, "should not be evil", !line_is_evil(line));
 
     line_insert_char(line, 'a', line->length  + 1);
@@ -133,7 +133,7 @@ MU_TEST(line_t_test) {
     line_insert_char(line, 'a', 0);
     text = line_to_string(line);
     okay(line, "will not change the string for evil operations",
-        equal_strings(text, "!b!ooya!a"));
+        eq_str(text, "!b!ooya!a"));
     free(text);
 
     line_t *no_room = line_create("hello");
@@ -141,7 +141,7 @@ MU_TEST(line_t_test) {
     line_insert_char(no_room, 'a', 0);
     text = line_to_string(no_room);
     okay(no_room, "will not right to a full string",
-        equal_strings(text, "hello"));
+        eq_str(text, "hello"));
     okay(no_room, "will be evil on insert to full buffer",
         line_is_evil(no_room));
     free(text);

@@ -4,6 +4,7 @@
 #include "line_test.h"
 #include "doc_test.h"
 
+
 MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(flub_t_test);
   MU_RUN_TEST(buffer_t_test);
