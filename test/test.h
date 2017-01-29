@@ -1,7 +1,9 @@
 #include "tools.h"
 #include "minunit.h"
-#include "flub.h"
+#include "lul_types.h"
+#include "cursor.h"
 #include "buffer.h"
+#include "flub.h"
 #include "line.h"
 #include "doc.h"
 

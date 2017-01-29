@@ -1,12 +1,9 @@
 #include "tools.h"
-#include "doc.h"
-#include "line.h"
-#include "flub.h"
 
 #define DOC_START_SIZE 100
 
 doc_t *doc_create(){
-  dlog("doc_create");
+  debug("doc_create");
   doc_t *result = (doc_t *) malloc(sizeof(doc_t));
   result->lines = (line_t **) calloc(sizeof(line_t *), DOC_START_SIZE);
   result->err = flub_create("generic doc error");
@@ -17,10 +14,9 @@ doc_t *doc_create(){
   result->length = 0;
   return result;
 }
-// for(int i=0;i<result->size;i++){*/
 
 doc_t *doc_free(doc_t *doc){
-  dlog("doc_free");
+  debug("doc_free");
   range(i, 0, doc->size){
     // free each line then free lines
     line_free((doc->lines)[i]);

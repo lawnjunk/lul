@@ -14,6 +14,15 @@
 #include <ctype.h>
 #include <time.h>
 
+// all of lul's headers 
+// hopefully this will help in not having any dependency loops
+#include "lul_types.h"
+#include "flub.h"
+#include "buffer.h"
+#include "line.h"
+#include "doc.h"
+#include "cursor.h"
+
 // memory management macro
 // l_free is used to force vars to be assined NULL after calling
 // the appropriate type_free destructor
@@ -54,12 +63,12 @@
 #define LUL_COLOR_WHITE   "\x1B[37m"
 
 #ifdef DEBUG
-#define dlog(args...)\
+#define debug(args...)\
 printf(LUL_COLOR_MAGENTA); printf("DEBUG: ");\
 printf(LUL_COLOR_CYAN); printf(args);\
 printf(LUL_COLOR_RESET); puts("");
 #else 
-#define dlog(args ...)
+#define debug(args ...)
 #endif
 
 #endif 

@@ -1,7 +1,4 @@
 #include "tools.h"
-#include "line.h"
-#include "flub.h"
-#include "buffer.h"
 
 /*
  * a line_t should allocate 256 (LINE_WITH) bytes when initialized
@@ -9,19 +6,19 @@
  */
 
 bool line_is_evil(line_t *line){
-  dlog("line_is_evil");
+  debug("line_is_evil");
   if(is_null(line)) return true;
   return flub_is_evil(line->err);
 }
 
 line_t *line_trouble_on(line_t *line, char *msg){
-  dlog("line_trouble_on");
+  debug("line_trouble_on");
   flub_trouble_on(line->err, msg);
   return line;
 }
 
 char *line_to_string(line_t *line){
-  dlog("line_to_string");
+  debug("line_to_string");
   char *result = (char *) malloc(sizeof(char) * line->length) ;
 
   if(line->length == 0){
@@ -39,7 +36,7 @@ char line_read_char(line_t *line, unsigned int offset){
 }
 
 line_t *line_append_char(line_t *line, char ch){
-  dlog("line_append_ch");
+  debug("line_append_ch");
   if(line_is_evil(line)) return line;
   if(line->length >= line->size - 1) 
     return line_trouble_on(line, "not enough room");
@@ -48,7 +45,7 @@ line_t *line_append_char(line_t *line, char ch){
 }
 
 line_t *line_insert_char(line_t *line, char ch, unsigned int offset){
-  dlog("line_insert_ch");
+  debug("line_insert_ch");
   if(line_is_evil(line)) return line;
   if(line->length >= line->size) 
     return line_trouble_on(line, "not enough room");
@@ -65,7 +62,7 @@ line_t *line_insert_char(line_t *line, char ch, unsigned int offset){
 /*hellox*/
 
 line_t *line_delete_char(line_t *line, unsigned int offset){
-  dlog("line_delete_char");
+  debug("line_delete_char");
   if(line_is_evil(line)) return line;
   if(line->length == 0)
     return line_trouble_on(line, "can not delete nothing");
@@ -85,7 +82,7 @@ line_t *line_delete_char(line_t *line, unsigned int offset){
 //   
 
 line_t *line_create(char *text){
-  dlog("line_create");
+  debug("line_create");
   line_t *result = (line_t *) malloc(sizeof(line_t));  
   result->buffer = buffer_create(LINE_WITH);
   buffer_write_string(result->buffer, text, 0);
@@ -96,10 +93,42 @@ line_t *line_create(char *text){
 }
 
 line_t *line_free(line_t *line){
-  dlog("line_free");
+  debug("line_free");
   buffer_free(line->buffer);
   flub_free(line->err);
   free(line);
   line = NULL;
   return line;
+}
+
+line_t *line_from_cursor(cursor_t *cur){
+  debug("line_from_cursor");
+  // check for evil_ness
+  if(cursor_is_evil(cur)) return NULL;
+
+  unsigned int x = cur->x;
+  unsigned int y =cur->y;
+  doc_t *doc = cur->doc;
+  // make sure its in a valid location
+  // is the line length valid?
+  if(y > doc->length){
+    cursor_trouble_on(cur, "not a valid line number");
+    return NULL;
+  }
+
+  // get the line
+  line_t *cur_line = (doc->lines)[y];
+  // check if the line is evil
+  if(line_is_evil(cur_line)){
+    cursor_trouble_on(cur, "line was evil");
+    return NULL;
+  }
+  // is the curor posion on the line valid
+  if(x > cur_line->length){
+    cursor_trouble_on(cur, "not a valid line index");
+    return NULL;
+  }
+
+  return cur_line;
+  // write the char
 }

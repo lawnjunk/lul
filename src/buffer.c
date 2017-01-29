@@ -1,5 +1,4 @@
-#include "flub.h"
-#include "buffer.h"
+#include "tools.h"
 
 typedef enum {
   LE,
@@ -11,7 +10,7 @@ typedef enum {
 
 // private funk
 static buffer_t *buffer_trouble_on(buffer_t *buf, char *msg){
-  dlog("buffer_trouble_on");
+  debug("buffer_trouble_on");
   flub_trouble_on(buf->err, msg);
   return buf;
 }
@@ -21,7 +20,7 @@ static buffer_t *buffer_trouble_on(buffer_t *buf, char *msg){
 // return type (type)
 #define make_read8(name, type) \
   type name(buffer_t *buf, size_t offset){ \
-    dlog(#name);\
+    debug(#name);\
     if(offset > buf->length -1) \
       buffer_trouble_on(buf, "access out of bounds");\
     return (type) buf->data[offset];\
@@ -38,7 +37,7 @@ make_read8(buffer_read_char, char);
 /*// return true on success*/
 #define make_write8(name, type) \
   buffer_t *name(buffer_t *buf, type value, size_t offset){ \
-    dlog(#name);\
+    debug(#name);\
     if(buffer_is_evil(buf)) return buf;\
     if(offset > buf->length - 1)\
       return buffer_trouble_on(buf, "write attempt out of bounds");\
@@ -53,7 +52,7 @@ make_write8(buffer_write_char, char);
 
 #define make_read16(name, type, endianness) \
   type name(buffer_t *buf, size_t offset){ \
-    dlog(#name);\
+    debug(#name);\
     uint8_t *nums = (uint8_t *) buf->data; \
     if (offset > buf->length - 2){\
       buffer_trouble_on(buf, "access out of bounds");\
@@ -72,7 +71,7 @@ make_read16(buffer_read_int16_BE, int16_t, BE);
 
 #define write_int16(name, type, endianness) \
   buffer_t * name(buffer_t *buf, type value, size_t offset){ \
-    dlog(#name);\
+    debug(#name);\
     if(buffer_is_evil(buf)) return buf;\
     if(offset > buf->length -2 )\
       return buffer_trouble_on(buf, "write attempt out of bounds");\
@@ -93,7 +92,7 @@ write_int16(buffer_write_int16_BE, int16_t, BE);
 
 #define read_int32(name, type, endianness) \
   type name(buffer_t *self, size_t offset){ \
-    dlog(#name);\
+    debug(#name);\
     uint8_t *nums = (uint8_t *) self->data; \
     if(offset > self->length - 4){\
       buffer_trouble_on(self, "access out of bounds");\
@@ -114,7 +113,7 @@ read_int32(buffer_read_int32_BE, int32_t, BE);
 /*// to not add checks at runtime!*/
 #define make_write32(name, type, endianness) \
   buffer_t * name(buffer_t *buf, type value, size_t offset){ \
-    dlog(#name);\
+    debug(#name);\
     if(buffer_is_evil(buf)) return buf;\
     if(offset > buf->length - 4) \
       return buffer_trouble_on(buf, "attempt out of bounds write");\
@@ -184,7 +183,7 @@ make_write32(buffer_write_int32_BE, int32_t, BE);
 
 #define fill_byte(name, type) \
   buffer_t *name(buffer_t *buf,  type num){ \
-    dlog(#name);\
+    debug(#name);\
     if(buffer_is_evil(buf)) return buf;\
     memset(buf->data, num, buf->length);\
     return buf;\
@@ -195,7 +194,7 @@ fill_byte(buffer_fill_int8, int8_t);
 fill_byte(buffer_fill_char, char);
 
 buffer_t *buffer_slice(buffer_t *self, size_t start, size_t end){
-  dlog("buffer_slice");
+  debug("buffer_slice");
   buffer_t *result;
   if (buffer_is_evil(self)) 
     return buffer_trouble_on(buffer_create(0), "cant slice from evil buffer");
@@ -224,7 +223,7 @@ buffer_t *buffer_slice(buffer_t *self, size_t start, size_t end){
 /*l 5*/
 
 buffer_t *buffer_write_string(buffer_t *buf, char *text, size_t offset){
-  dlog("buffer_write_string");
+  debug("buffer_write_string");
   if(buffer_is_evil(buf)) return buf;
   int length = strlen(text);
   if(offset + length > buf->length)
@@ -235,7 +234,7 @@ buffer_t *buffer_write_string(buffer_t *buf, char *text, size_t offset){
 }
 
 buffer_t *buffer_write_buffer(buffer_t *dest, buffer_t *src, size_t offset, size_t count){
-  dlog("buffer_write_buffer");
+  debug("buffer_write_buffer");
   if(buffer_is_evil(dest)) return dest;
   if(buffer_is_evil(src))
     return buffer_trouble_on(dest, "src buffer was evil");
@@ -247,7 +246,7 @@ buffer_t *buffer_write_buffer(buffer_t *dest, buffer_t *src, size_t offset, size
 
 // TODO: TEST
 buffer_t *buffer_copy(buffer_t *buf){
-  dlog("buffer_copy");
+  debug("buffer_copy");
   if(buffer_is_evil(buf)) return buf; 
   buffer_t *result = buffer_create(buf->length);
   memcpy(result->data, buf->data, buf->length);
@@ -255,7 +254,7 @@ buffer_t *buffer_copy(buffer_t *buf){
 }
 
 buffer_t *buffer_create(size_t length){
-  dlog("buffer_create");
+  debug("buffer_create");
   // create new buffer_t
   buffer_t *result = malloc(sizeof(buffer_t));
   result->data = (uint8_t *) malloc(sizeof(uint8_t) * length);
@@ -266,7 +265,7 @@ buffer_t *buffer_create(size_t length){
 }
 
 buffer_t *buffer_free(buffer_t *buf){
-  dlog("buffer_free");
+  debug("buffer_free");
   if(!buf->is_slice){
     free(buf->data);
   }
@@ -277,13 +276,13 @@ buffer_t *buffer_free(buffer_t *buf){
 }
 
 bool buffer_is_evil(buffer_t *buf){
-  dlog("buffer_is_evil");
+  debug("buffer_is_evil");
   if(is_null(buf)) return true;
   return flub_is_evil(buf->err);
 }
 
 buffer_t *buffer_from_file(FILE *infile){
-  dlog("buffer_from_file");
+  debug("buffer_from_file");
   fseek(infile, 0, SEEK_END); // jump to end of file
   size_t length = ftell(infile); // get length
   fseek(infile, 0, SEEK_SET); // go back to begenning of file
@@ -295,7 +294,7 @@ buffer_t *buffer_from_file(FILE *infile){
 }
 
 buffer_t *buffer_from_char_array(char *data){
-  dlog("buffer_from_char_array");
+  debug("buffer_from_char_array");
   int length = strlen(data);
   buffer_t *result = buffer_create(length);
   memcpy(result->data, data, length);
@@ -303,14 +302,14 @@ buffer_t *buffer_from_char_array(char *data){
 }
 
 buffer_t *buffer_from_uint8_array(uint8_t *data, size_t length){
-  dlog("buffer_from_uint8_array");
+  debug("buffer_from_uint8_array");
   buffer_t *result = buffer_create(length);
   memcpy(result->data, data, length);
   return result;
 }
 
 buffer_t *buffer_from_int8_array(int8_t *data, size_t length){
-  dlog("buffer_from_int8_array");
+  debug("buffer_from_int8_array");
   buffer_t *result = buffer_create(length);
   memcpy(result->data, data, length);
   return result;

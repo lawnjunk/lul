@@ -1,23 +1,15 @@
 #ifndef LUL_LINE
 #define LUL_LINE
 #include "tools.h"
-#include "buffer.h"
-#include "flub.h"
 
 #define LINE_WITH 1000
 
-#define line_t struct line
-struct line {
-  buffer_t *buffer;
-  flub_t *err; 
-  unsigned int length; // length of string in buffer
-  unsigned int size ;  // amount of bytes allocated for buffer
-};
 
 // line create and destroy
 line_t *line_create(char *text);
 line_t *line_free(line_t *line);
 line_t *line_trouble_on(line_t *line, char *msg);
+line_t *line_from_cursor(cursor_t *cur);
 
 // line operations
 bool line_is_evil(line_t *line);

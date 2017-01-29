@@ -1,15 +1,6 @@
 #ifndef BYTE_ARRAY
 #define BYTE_ARRAY
 #include "tools.h"
-#include "flub.h"
-
-// this is a class
-typedef struct {
-  uint8_t *data;
-  size_t length;
-  flub_t *err;
-  bool is_slice; // necessary for buffer_free
-} buffer_t;
 
 // uint8
 uint8_t buffer_read_uint8(buffer_t *buf, size_t offset);

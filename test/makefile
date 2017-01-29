@@ -1,22 +1,24 @@
-CFLAGS = -Wall
+P = test
+CFLAGS = -Wall -g 
 INCLUDE = -I ../src/ -I ./
-SOURCE = ../src/flub.c ../src/buffer.c ../src/line.c ../src/doc.c ../src/cursor.c
-LIBS = -lgc
+OBJECTS = ../src/flub.o ../src/buffer.o ../src/line.o ../src/doc.o ../src/cursor.o
+LIBS = 
 
-t: build 
-	./tests
-	rm ./tests
+# make run 
+t: b
+	./$(P)
 
-build: 
-	clang $(CFLAGS) ${INCLUDE} test.c ${SOURCE} ${LIBS} -o tests
+b: $(OBJECTS) 
+	clang $(CFLAGS) ${INCLUDE} test.c $(OBJECTS) ${LIBS} -o $(P)
 
-debug: 
-	clang -D DEBUG ${CFLAGS} ${INCLUDE} test.c ${SOURCE} ${LIBS} -o tests
-	./tests
-	rm ./tests
+$@: 
+	clang $(CFLAGS) $(INCLUDE)  -o $@ $*.c $(LIBS)
 
-quiet: 
-	clang -D NO_TEST_LOG ${CFLAGS} ${INCLUDE} test.c ${SOURCE} ${LIBS} -o tests
-	./tests
-	rm ./tests
+debug: $(OBJECTS)
+	clang -D DEBUG ${CFLAGS} ${INCLUDE} test.c ${OBJECTS} ${LIBS} -o $(P)
+	./$(P)
+
+quiet: $(OBJECTS)
+	clang -D NO_TEST_LOG ${CFLAGS} ${INCLUDE} test.c ${OBJECTS} ${LIBS} -o $(P)
+	./$(P)
 
