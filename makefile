@@ -17,7 +17,7 @@ b: $(OBJECTS)
 watch:
 	find . -name '*.[c|h]' | entr -c make t
 
-cover: clean b
+cover: t
 	coveralls -t ${COVERALLS_REPO_TOKEN}
 
 
@@ -28,3 +28,4 @@ clean:
 	- rm ./test/*.gc* 
 	- rm test/test 
 	- rm lul 
+	- rm run_test

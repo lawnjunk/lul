@@ -1,6 +1,7 @@
 *.gc*
 env.sh
 lul
+run_test
 # Created by https://www.gitignore.io/api/c,lua,xcode,osx,linux,windows,vim
 
 ### C ###
