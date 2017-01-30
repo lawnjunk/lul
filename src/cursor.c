@@ -80,7 +80,7 @@ cursor_t *cursor_write_char(cursor_t *cur, char ch){
   if(ch == '\n'){
     // copy the rest of the line to the next line
     // change the length to where the '\n' char is
-    doc_insert_new_line(cur->doc, cur->x, cur->y);
+    doc_insert_new_line(cur->doc, cur);
     cur_line->length = cur->x;
     return cur;
   }
