@@ -112,15 +112,14 @@ static void (*minunit_teardown)() = NULL;
 	if (minunit_setup) (*minunit_setup)();\
 	minunit_status = 0;\
 	test();\
-	minunit_run++;\
 	if (minunit_status) {\
-		minunit_fail++;\
 		printf("F");\
 		printf("\n%s\n", minunit_last_message);\
 	}\
 	fflush(stdout);\
 	if (minunit_teardown) (*minunit_teardown)();\
 )
+		//line 117 minunit_fail++;\
 
 /*  Report */
 #define MU_REPORT() MU__SAFE_BLOCK(\
@@ -139,8 +138,7 @@ static void (*minunit_teardown)() = NULL;
 	minunit_assert++;\
 	if (!(test)) {\
 		snprintf(minunit_last_message, MINUNIT_MESSAGE_LEN, "%s failed:\n\t%s:%d: %s", __func__, __FILE__, __LINE__, #test);\
-		minunit_status = 1;\
-		return;\
+    minunit_fail++;\
 	} else {\
 		printf("");\
 	}\

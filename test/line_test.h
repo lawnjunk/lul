@@ -144,6 +144,7 @@ MU_TEST(line_t_test) {
     okay(no_room, "will be evil on insert to full buffer",
         line_is_evil(no_room));
     free(text);
+    fail();
 
     l_free(line, line);
     l_free(no_room, line);
@@ -157,6 +158,7 @@ MU_TEST(line_t_test) {
       line_write_line(dest, src, 2, 0, 3);
       p_s(line_to_string(dest));
       ok(line_to_string(dest), eq_str, "aa123");
+      fail();
     }
   }
 

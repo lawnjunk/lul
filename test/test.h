@@ -8,7 +8,7 @@
 #include "doc.h"
 
 #define describe(msg) puts(msg); if(true)
-#define it(msg) printf("  %s\n", msg); if(true)
+#define it(msg) minunit_run++; printf("  %s\n", msg); if(true)
 
 #ifdef NO_TEST_LOG
 #define should(msg, truth) mu_check(truth);
