@@ -1,3 +1,4 @@
+*.profraw
 *.gc*
 env.sh
 lul
