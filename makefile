@@ -10,3 +10,8 @@ t:
 
 watch:
 	find . -name '*.[c|h]' | entr -c make t
+
+clean: 
+	rm ./src/*.o 
+	rm test/test
+	rm lul

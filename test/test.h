@@ -8,6 +8,7 @@
 #include "doc.h"
 
 #define describe(msg) puts(msg); if(true)
+#define it(msg) printf("  %s\n", msg); if(true)
 
 #ifdef NO_TEST_LOG
 #define should(msg, truth) mu_check(truth);
@@ -30,6 +31,27 @@ mu_check(truth);
   mu_check(check);
 #endif
 
+#ifdef NO_TEST_LOG
+#define ok(thing, cmp, val) mu_check(cmp(thing, val));
+#else
+#define ok(thing, cmp, val)\
+  printf("    [%s]: ", #thing); \
+  cmp(thing, val) ? printf(LUL_COLOR_GREEN) : printf(LUL_COLOR_RED);\
+  printf("%s %s\n", #cmp, #val);\
+  printf(LUL_COLOR_RESET);\
+  mu_check(cmp(thing, val));
+#endif
+
+#ifdef NO_TEST_LOG
+#define check(thing, cmp) mu_check(cmp(thing));
+#else
+#define check(thing, cmp)\
+  printf("    [%s]: ", #thing); \
+  cmp(thing) ? printf(LUL_COLOR_GREEN) : printf(LUL_COLOR_RED);\
+  printf("%s\n", #cmp);\
+  printf(LUL_COLOR_RESET);\
+  mu_check(cmp(thing));
+#endif
 // usefule log tools for debuging
 #define p_i(x) printf(":{{ %s }}: %d\n", #x, x);
 #define p_l(x) printf(":{{ %s }}: %ld\n", #x, x);

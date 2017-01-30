@@ -101,13 +101,13 @@ line_t *line_free(line_t *line){
   return line;
 }
 
-line_t *line_from_cursor(cursor_t *cur){
+line_t *line_from_cursor(cursor_t *cur, int offset){
   debug("line_from_cursor");
   // check for evil_ness
   if(cursor_is_evil(cur)) return NULL;
 
   unsigned int x = cur->x;
-  unsigned int y =cur->y;
+  unsigned int y =cur->y + offset;
   doc_t *doc = cur->doc;
   // make sure its in a valid location
   // is the line length valid?
@@ -131,4 +131,20 @@ line_t *line_from_cursor(cursor_t *cur){
 
   return cur_line;
   // write the char
+}
+
+line_t *line_write_line(line_t *dest, line_t *src, unsigned int doffset, unsigned int soffset, unsigned int count){
+  debug("line_write_line");
+  if(line_is_evil(dest)) return dest;
+  if(line_is_evil(src))
+    return line_trouble_on(dest, "src was evil");
+  if((doffset + count) > dest->size)
+    return line_trouble_on(dest, "not enough room");
+  if(count > src->length - 1)
+    return line_trouble_on(dest, "count two large");
+  buffer_t *slice = buffer_slice(src->buffer, soffset, src->length);
+  buffer_write_buffer(dest->buffer, slice, doffset, count);
+  dest->length = strlen(dest->buffer->data);
+  l_free(slice, buffer);
+  return dest;
 }

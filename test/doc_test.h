@@ -23,21 +23,4 @@ MU_TEST(doc_t_test) {
     l_free(doc, doc);
     okay(doc->lines, "should be NULL", doc == NULL);
   }
-
-
-  describe("cursor_create"){
-    doc_t *doc = doc_create();
-    cursor_t *pt = cursor_create(doc, 100, 300);
-    okay(pt->x, "should be 100", pt->x == 100);
-    okay(pt->y,"should be 300", pt->y  == 300);
-    okay(pt->doc, "should referce doc", pt->doc == doc);
-    cursor_is_evil(pt);
-
-    l_free(pt, cursor);
-    okay(doc, "should not be freed from cursor_free", !is_null(doc));
-    okay(pt, "should not be freed from cursor_free", pt == NULL);
-    l_free(doc, doc);
-  }
-
-
 }

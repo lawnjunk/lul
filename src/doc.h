@@ -12,4 +12,6 @@ doc_t *doc_free(doc_t *doc);
 doc_t *doc_trouble_on(doc_t *doc, char* msg);
 bool doc_is_evil(doc_t *doc);
 
+doc_t *doc_insert_new_line(doc_t *doc, cursor_t *cur);
+
 #endif

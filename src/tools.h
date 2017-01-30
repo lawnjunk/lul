@@ -49,6 +49,10 @@
 #define eq_int32(a, b) ((int32_t) a == (int32_t) b)
 #define eq_char(a, b) ((char) a == (char) b)
 #define eq_size(a, b) ((size_t) a == (size_t) b)
+#define eq_int(a, b) ((int) a == (int) b)
+#define eq_long(a, b) ((long) a == (long) b)
+#define eq_uint(a, b) ((unsigned int) a == (unsigned int) b)
+#define eq_ulong(a, b) ((unsigned long) a == (unsigned long) b)
 
 // null check macro
 #define is_null(ptr) (ptr == NULL)

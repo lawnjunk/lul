@@ -41,3 +41,24 @@ doc_t *doc_trouble_on(doc_t *doc, char *msg){
   return doc;
 }
 
+/*aaaa*/
+/*bbbb*/
+/*cccc*/
+/*dddd*/
+
+doc_t *doc_insert_new_line(doc_t *doc, cursor_t *cur){
+  if(doc_is_evil(doc)) return doc;
+  line_t *cur_line = line_from_cursor(cur, 0);
+  line_t *next = line_from_cursor(cur, 1);
+  l_free(doc->lines[doc->length], line);
+  range_down(i, doc->length, cur->y + 1)
+    doc->lines[i] = doc->lines[i-1];
+
+  line_insert_char(cur_line, '\n', cur->x);
+  cur_line->length = cur->x;
+  next->length = cur_line->length - cur->x;
+  line_write_line(next, cur_line, 0, cur->x, next->length);
+  l_free(next, line);
+  doc->lines[cur->y + 1] = line_create("");
+  return doc;
+}

@@ -1,6 +1,5 @@
 #include "test.h"
 
-
 MU_TEST(line_t_test) {
   describe("line_create"){
     line_t *line = line_create("hello world");
@@ -8,12 +7,12 @@ MU_TEST(line_t_test) {
     okay(line, "have a flub", !flub_is_evil(line->err));
     okay(line, "have a size of line_with", (line->size == LINE_WITH));
     okay(line, "have a buffer with length 1000", (line->buffer->length == LINE_WITH));
-    line_free(line); 
+    l_free(line, line); 
   }
 
   describe("line_free"){
     line_t *line = line_create("");
-    line = line_free(line);
+    line = l_free(line, line);
     should("line should be null", line == NULL);
   }
 
@@ -24,7 +23,7 @@ MU_TEST(line_t_test) {
 
     flub_trouble_on(line->err, "");
     okay(line, "line should be evil", line_is_evil(line));
-    line_free(line);
+    l_free(line, line);
   }
 
   describe("line_read_char"){
@@ -39,7 +38,7 @@ MU_TEST(line_t_test) {
     ch = line_read_char(line, 6);
     okay( ch, "should be '\\0'", ch == '\0');
 
-    line_free(line);
+    l_free(line, line);
   }
 
   describe("line_to_string"){
@@ -54,8 +53,8 @@ MU_TEST(line_t_test) {
     okay(lul, "should equal ''", eq_str(lul, ""));
     free(lul);
 
-    line_free(line);
-    line_free(empty);
+    l_free(line, line);
+    l_free(empty, line);
   }
 
 
@@ -73,7 +72,7 @@ MU_TEST(line_t_test) {
     line->length = LINE_WITH - 1 ;
     line_append_char(line, 'k');
     okay(line, "should be evil", line_is_evil(line));
-    line_free(line);
+    l_free(line, line);
   }
 
   describe("line_delete_char"){
@@ -107,7 +106,7 @@ MU_TEST(line_t_test) {
     okay(line, "should be evil", line_is_evil(line));
     okay(line->length, "should equal 0", line->length == 0);  
     free(result);
-    line_free(line);
+    l_free(line, line);
   }
 
   describe("line_insert_char"){
@@ -146,8 +145,20 @@ MU_TEST(line_t_test) {
         line_is_evil(no_room));
     free(text);
 
-    line_free(line);
-    line_free(no_room);
+    l_free(line, line);
+    l_free(no_room, line);
+  }
+
+  describe("line_write_line"){
+    line_t *src = line_create("1234");
+    line_t *dest = line_create("aaa");
+    
+    if("should copy '123' to the second offset of 1"){
+      line_write_line(dest, src, 2, 3);
+
+      p_s(line_to_string(dest));
+      ok(line_to_string(dest), eq_str, "aa123");
+    }
   }
 
 }
