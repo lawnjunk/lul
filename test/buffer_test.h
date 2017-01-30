@@ -648,7 +648,6 @@ MU_TEST(buffer_t_test) {
       should("have the right data at index",
           eq_char(buffer_read_uint8(buf, i), i));
     }
-    /*fail();*/
   }
 }
 

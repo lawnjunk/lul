@@ -17,6 +17,7 @@ MU_TEST_SUITE(test_suite) {
 int main(int argc, char *argv[]) {
   MU_RUN_SUITE(test_suite);
   MU_REPORT();
-
+  if(minunit_fail > 0)
+    exit(minunit_fail > 255 ? 255 : minunit_fail );
   return 0;
 }
