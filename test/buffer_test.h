@@ -18,7 +18,7 @@ MU_TEST(buffer_t_test) {
   }
 
   describe("TEST buffer_from_file"){
-    FILE *test_data = fopen("./test_data.txt", "r");
+    FILE *test_data = fopen("./test/test_data.txt", "r");
     buffer_t *buf = buffer_from_file(test_data);
     should("->length should equal 6", buf->length == 6);
     should("->data should conain 'hello\\n'", (

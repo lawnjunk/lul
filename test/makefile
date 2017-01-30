@@ -1,6 +1,6 @@
 P = test
 LIBS = 
-CFLAGS = -Wall -g 
+CFLAGS = -Wall -g -ftest-coverage -fprofile-arcs
 INCLUDE = -I ../src/ -I ./
 OBJECTS = ../src/flub.o ../src/buffer.o \
 					../src/line.o ../src/doc.o \

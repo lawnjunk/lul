@@ -1,3 +1,5 @@
+*.gc*
+env.sh
 lul
 # Created by https://www.gitignore.io/api/c,lua,xcode,osx,linux,windows,vim
 

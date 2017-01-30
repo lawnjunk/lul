@@ -1,4 +1,5 @@
 #include "test.h"
+#include "buffer.h"
 #include "flub_test.h"
 #include "buffer_test.h"
 #include "line_test.h"
