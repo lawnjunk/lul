@@ -2,42 +2,58 @@
 
 MU_TEST(buffer_t_test) {
   describe("TEST buffer_create"){
-    buffer_t *buf = buffer_create(10);
-    should("->length should equal 10", buf->length == 10);
-    should("->data should not be NULL", !is_null(buf->data));
-    should("->err should not be evil", !flub_is_evil(buf->err));
-    should("->err->msg should be 'generic buffer error'",
-        eq_str(buf->err->msg, "generic buffer error"))
+    it("should create a buffer"){
+      buffer_t *buf = buffer_create(10);
+      ok(buf->length, eq_size, 10);
+      check(buf->data, !is_null);
+      check(buf, !buffer_is_evil);
+      ok(buf->err->msg, eq_str, "generic buffer error");
       l_free(buf, buffer);
+    }
   }
 
   describe("TEST buffer_free"){
-    buffer_t *buf = buffer_create(10);
-    l_free(buf, buffer);
-    should("buf should be null", is_null(buf));
+    it("the buf should be null affter freeing it"){
+      buffer_t *buf = buffer_create(10);
+      l_free(buf, buffer);
+      should("buf should be null", is_null(buf));
+    }
   }
 
   describe("TEST buffer_from_file"){
-    FILE *test_data = fopen("./test/test_data.txt", "r");
-    buffer_t *buf = buffer_from_file(test_data);
-    should("->length should equal 6", buf->length == 6);
-    should("->data should conain 'hello\\n'", (
-          (buf->data[0] == 'h') &&
-          (buf->data[1] == 'e') &&
-          (buf->data[2] == 'l') &&
-          (buf->data[3] == 'l') &&
-          (buf->data[4] == 'o') &&
-          (buf->data[5] == '\n')
-          ));
-    l_free(buf, buffer);
-    fclose(test_data);
+
+    it("should fill a buffer with the data from a file at a file path"){
+      FILE *test_data = fopen("./test/test_data.txt", "r");
+      buffer_t *buf = buffer_from_file(test_data);
+      ok(buf->length, eq_size, 6);
+      ok(buf->data[0], eq_char, 'h');
+      ok(buf->data[1], eq_char, 'e');
+      ok(buf->data[2], eq_char, 'l');
+      ok(buf->data[3], eq_char, 'l');
+      ok(buf->data[4], eq_char, 'o');
+      ok(buf->data[5], eq_char, '\n');
+      check(buf, !buffer_is_evil);
+      l_free(buf, buffer);
+      fclose(test_data);
+    }
+
   }
 
   describe("TEST buffer_is_evil"){
     buffer_t *buf = buffer_create(5);
-    should("buf should not be evil", !buffer_is_evil(buf));
-    flub_trouble_on(buf->err, "bad news");
-    should("buf should be evil", buffer_is_evil(buf));
+    it("should return false if buf->err->trouble == false"){
+      check(buf, !buffer_is_evil);
+    }
+
+    it("should return true if buf->err->trouble == true"){
+      flub_trouble_on(buf->err, "bad news");
+      check(buf, buffer_is_evil);
+    }
+
+    it("buffer_is_evil should return true if buf is NULL"){
+      check(NULL, buffer_is_evil);
+    }
+
     l_free(buf, buffer);
   }
 
@@ -47,15 +63,13 @@ MU_TEST(buffer_t_test) {
     buf->data[1] = 22;
     buf->data[2] = 33;
 
-    uint8_t result;
-    result = buffer_read_uint8(buf, 0);
-    should("shold be 11", result == 11);
-    result = buffer_read_uint8(buf, 1);
-    should("shold be 22", result == 22);
-    result = buffer_read_uint8(buf, 2);
-    should("shold be 33", result == 33);
-    result = buffer_read_uint8(buf, 3);
-    should("shold be 0", result == 0);
+    it("should retrun the correct int for a given offset"){
+      ok(buffer_read_uint8(buf, 0), eq_uint8, 11);
+      ok(buffer_read_uint8(buf, 1), eq_uint8, 22);
+      ok(buffer_read_uint8(buf, 2), eq_uint8, 33);
+      ok(buffer_read_uint8(buf, 3), eq_uint8, 0);
+    }
+
     l_free(buf, buffer);
   }
 
@@ -65,15 +79,13 @@ MU_TEST(buffer_t_test) {
     buf->data[1] = 'b';
     buf->data[2] = 'c';
 
-    char result;
-    result = buffer_read_char(buf, 0);
-    should("shold be 'a'", result == 'a');
-    result = buffer_read_char(buf, 1);
-    should("shold be 'b'", result == 'b');
-    result = buffer_read_char(buf, 2);
-    should("shold be 'c'", result == 'c');
-    result = buffer_read_char(buf, 3);
-    should("shold be 0", result == 0);
+    it("should retrun the correct char for a given offset"){
+      ok(buffer_read_char(buf, 0), eq_char, 'a');
+      ok(buffer_read_char(buf, 1), eq_char, 'b');
+      ok(buffer_read_char(buf, 2), eq_char, 'c');
+      ok(buffer_read_char(buf, 3), eq_char, 0);
+    }
+
     l_free(buf, buffer);
   }
 
@@ -83,28 +95,31 @@ MU_TEST(buffer_t_test) {
     buf->data[1] = 22;
     buf->data[2] = 33;
 
-    int8_t result;
-    result = buffer_read_int8(buf, 0);
-    should("shold be 11", eq_int8(result,  11));
-    result = buffer_read_int8(buf, 1);
-    should("shold be 22", eq_int8(result, 22));
-    result = buffer_read_int8(buf, 2);
-    should("shold be 33", eq_int8(result, 33));
-    result = buffer_read_int8(buf, 3);
-    should("shold be 0", eq_int8(result, 0));
+    it("should retrun the correct int for a given offset"){
+      ok(buffer_read_int8(buf, 0), eq_int8, 11);
+      ok(buffer_read_int8(buf, 1), eq_int8, 22);
+      ok(buffer_read_int8(buf, 2), eq_int8, 33);
+      ok(buffer_read_int8(buf, 3), eq_int8, 0);
+    }
+
     l_free(buf, buffer);
   }
 
   describe("TEST buffer_write_uint8"){
     buffer_t *buf = buffer_create(5);
-    buf = buffer_write_uint8(buf, 11, 0);
-    should("write 11 at index 0", eq_uint8(buf->data[0], 11));
-    should("buffer should not be evil" , !flub_is_evil(buf->err));
-    buf = buffer_write_uint8(buf, 22, 2);
-    should("write 22 at index 2", eq_uint8(buf->data[2], 22));
-    should("buffer should not be evil" , !flub_is_evil(buf->err));
-    buf = buffer_write_uint8(buf, 100, 6);
-    should("buffer should be evil" , flub_is_evil(buf->err));
+
+    it("should write a uint to the correct offset"){
+      buf = buffer_write_uint8(buf, 11, 0);
+      ok(buf->data[0], eq_uint8, 11);
+      buf = buffer_write_uint8(buf, 22, 2);
+      ok(buf->data[1], eq_uint8, 22);
+      check(buf, !buffer_is_evil);
+    }
+
+    it("should return an evil buf on out of bounds write"){
+      buf = buffer_write_uint8(buf, 100, 6);
+      check(buf, buffer_is_evil);
+    }
     l_free(buf, buffer);
   }
 

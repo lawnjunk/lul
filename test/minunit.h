@@ -119,7 +119,7 @@ static void (*minunit_teardown)() = NULL;
 	fflush(stdout);\
 	if (minunit_teardown) (*minunit_teardown)();\
 )
-		//line 117 minunit_fail++;\
+		//line 117 minunit_fail++;
 
 /*  Report */
 #define MU_REPORT() MU__SAFE_BLOCK(\

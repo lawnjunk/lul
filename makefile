@@ -7,7 +7,7 @@ OBJECTS = ./src/flub.o ./src/buffer.o \
 					./src/cursor.o
 
 # build and run tests
-t: b
+t: clean b
 	./$(P)
 
 # build the object deps and the $(P)

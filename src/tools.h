@@ -1,6 +1,5 @@
 #ifndef LUL_TOOLS
 #define LUL_TOOLS
-//#define DEBUG
 
 // # unified header for all external libs
 #include <sys/time.h>
@@ -16,6 +15,7 @@
 
 // all of lul's headers 
 // hopefully this will help in not having any dependency loops
+#include "color.h"
 #include "lul_types.h"
 #include "flub.h"
 #include "buffer.h"
@@ -56,15 +56,6 @@
 
 // null check macro
 #define is_null(ptr) (ptr == NULL)
-
-#define LUL_COLOR_RESET   "\x1B[0m"
-#define LUL_COLOR_RED     "\x1B[31m"
-#define LUL_COLOR_GREEN   "\x1B[32m"
-#define LUL_COLOR_YELLOW  "\x1B[33m"
-#define LUL_COLOR_BLUE    "\x1B[34m"
-#define LUL_COLOR_MAGENTA "\x1B[35m"
-#define LUL_COLOR_CYAN    "\x1B[36m"
-#define LUL_COLOR_WHITE   "\x1B[37m"
 
 #ifdef DEBUG
 #define debug(args...)\
