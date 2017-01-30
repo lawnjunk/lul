@@ -144,7 +144,7 @@ line_t *line_write_line(line_t *dest, line_t *src, unsigned int doffset, unsigne
     return line_trouble_on(dest, "count two large");
   buffer_t *slice = buffer_slice(src->buffer, soffset, src->length);
   buffer_write_buffer(dest->buffer, slice, doffset, count);
-  dest->length = strlen(dest->buffer->data);
+  dest->length = doffset + slice->length;
   l_free(slice, buffer);
   return dest;
 }
