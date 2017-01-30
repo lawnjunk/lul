@@ -12,7 +12,7 @@ MU_TEST(line_t_test) {
 
   describe("line_free"){
     line_t *line = line_create("");
-    line = l_free(line, line);
+    l_free(line, line);
     should("line should be null", line == NULL);
   }
 
@@ -154,8 +154,7 @@ MU_TEST(line_t_test) {
     line_t *dest = line_create("aaa");
     
     if("should copy '123' to the second offset of 1"){
-      line_write_line(dest, src, 2, 3);
-
+      line_write_line(dest, src, 2, 0, 3);
       p_s(line_to_string(dest));
       ok(line_to_string(dest), eq_str, "aa123");
     }
