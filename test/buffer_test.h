@@ -112,7 +112,7 @@ MU_TEST(buffer_t_test) {
       buf = buffer_write_uint8(buf, 11, 0);
       ok(buf->data[0], eq_uint8, 11);
       buf = buffer_write_uint8(buf, 22, 2);
-      ok(buf->data[1], eq_uint8, 22);
+      ok(buf->data[2], eq_uint8, 22);
       check(buf, !buffer_is_evil);
     }
 
