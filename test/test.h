@@ -57,7 +57,7 @@ mu_check(check);
 
 #define ok_msg_success(thing, cmp, val)\
   sprintf(lul_error_msg, "    [%s]: %s%s %s%s\n", #thing,\
-      LUL_COLOR_RED, #cmp, #val, LUL_COLOR_RESET);
+      LUL_COLOR_GREEN, #cmp, #val, LUL_COLOR_RESET);
 
 #ifdef NO_TEST_LOG
 #define ok(thing, cmp, val) mu_check(cmp(thing, val));
@@ -80,7 +80,7 @@ mu_check(check);
 
 #define check_msg_success(thing, cmp)\
   sprintf(lul_error_msg, "    [%s]: %s%s %s\n", #thing,\
-      LUL_COLOR_RED, #cmp, LUL_COLOR_RESET);
+      LUL_COLOR_GREEN, #cmp, LUL_COLOR_RESET);
 
 #ifdef NO_TEST_LOG
 #define check(thing, cmp) mu_check(cmp(thing));
