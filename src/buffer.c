@@ -9,12 +9,6 @@ typedef enum {
 /*buffer_t *slice(buffer_t *self, size_t start, size_t end);*/
 
 // private funk
-static buffer_t *buffer_trouble_on(buffer_t *buf, char *msg){
-  debug("buffer_trouble_on");
-  flub_trouble_on(buf->err, msg);
-  return buf;
-}
-
 // make_read8 creates a functions for reading 8bit
 // signed and unsinged ints, at a size_t offset
 // return type (type)
@@ -115,7 +109,7 @@ read_int32(buffer_read_int32_BE, int32_t, BE);
   buffer_t * name(buffer_t *buf, type value, size_t offset){ \
     debug(#name);\
     if(buffer_is_evil(buf)) return buf;\
-    if(offset > buf->length - 4) \
+    if(offset > (buf->length - 4)) \
       return buffer_trouble_on(buf, "attempt out of bounds write");\
     uint8_t *nums = (uint8_t *) buf->data; \
     nums[offset + (endianness == LE ? 0 : 3)] = value & 0xff ; \
@@ -238,9 +232,9 @@ buffer_t *buffer_write_buffer(buffer_t *dest, buffer_t *src, size_t doffset, siz
   if(buffer_is_evil(dest)) return dest;
   if(buffer_is_evil(src))
     return buffer_trouble_on(dest, "src buffer was evil");
-  if(doffset >= (dest->length - count))
+  if(doffset > (dest->length - count))
     return buffer_trouble_on(dest, "not enough room");
-  if(soffset >= (src->length - count)) 
+  if(soffset > (src->length - count)) 
     return buffer_trouble_on(dest, "src dont have that much data");
   memcpy((dest->data) + doffset, src->data + soffset, count);
   return dest;
@@ -281,6 +275,11 @@ bool buffer_is_evil(buffer_t *buf){
   debug("buffer_is_evil");
   if(is_null(buf)) return true;
   return flub_is_evil(buf->err);
+}
+
+buffer_t *buffer_trouble_on(buffer_t *buf, char *msg){
+  flub_trouble_on(buf->err, msg);
+  return buf;
 }
 
 buffer_t *buffer_from_file(FILE *infile){

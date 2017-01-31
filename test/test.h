@@ -96,6 +96,7 @@ mu_check(check);
 #endif
 // usefule log tools for debuging
 #define p_i(x) printf(":{{ %s }}: %d\n", #x, x);
+#define p_c(x) printf(":{{ %s }}: %c\n", #x, x);
 #define p_l(x) printf(":{{ %s }}: %ld\n", #x, x);
 #define p_u(x) printf(":{{ %s }}: %u\n", #x, x);
 #define p_ul(x) printf(":{{ %s }}: %lu\n", #x, x);

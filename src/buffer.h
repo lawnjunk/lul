@@ -66,6 +66,7 @@ bool buffer_is_evil(buffer_t *buf);
 // create create and free
 buffer_t *buffer_free(buffer_t *buf);
 buffer_t *buffer_create(size_t length);
+buffer_t *buffer_trouble_on(buffer_t *buf, char *msg);
 
 buffer_t *buffer_from_char_array(char *data);
 buffer_t *buffer_from_int8_array(int8_t *data, size_t length);
