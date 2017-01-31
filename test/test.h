@@ -16,7 +16,7 @@ int  lul_error_count = 0;
 
 #define lul_errors_report()\
   for(int i=0; i< lul_error_count; i++){\
-    printf("%s", lul_error_messages[i]);\
+    printf("%d) %s", i+1,  lul_error_messages[i]);\
   }
 
 #define describe(msg) puts(msg); if(true)
@@ -31,11 +31,11 @@ int  lul_error_count = 0;
 #endif
 
 #define fail() \
-  sprintf(lul_error_msg, "    [generic fail]: %sfuck(%s:%d)%s\n", LUL_COLOR_RED,  __FILE__, __LINE__,LUL_COLOR_RESET);\
+  sprintf(lul_error_msg, "[generic fail]: %sfuck(%s:%d)%s\n", LUL_COLOR_RED,  __FILE__, __LINE__,LUL_COLOR_RESET);\
   if(lul_error_count < 5){\
     strcpy(lul_error_messages[lul_error_count++], lul_error_msg);\
   }\
-  printf("%s", lul_error_msg);\
+  printf("    %s", lul_error_msg);\
   mu_check(false);
 
 #ifdef NO_TEST_LOG
@@ -50,13 +50,13 @@ mu_check(check);
 #endif
 
 #define ok_msg_fail(thing, cmp, val)\
-  sprintf(lul_error_msg, "    [%s]: %sfuck(%s:%d) %s %s%s\n", #thing ,\
+  sprintf(lul_error_msg, "[%s]: %sfuck(%s:%d) %s %s%s\n", #thing ,\
       LUL_COLOR_RED, __FILE__, __LINE__, #cmp, #val, LUL_COLOR_RESET);\
       if(lul_error_count < 5)\
         strcpy(lul_error_messages[lul_error_count++], lul_error_msg);
 
 #define ok_msg_success(thing, cmp, val)\
-  sprintf(lul_error_msg, "    [%s]: %s%s %s%s\n", #thing,\
+  sprintf(lul_error_msg, "[%s]: %s%s %s%s\n", #thing,\
       LUL_COLOR_GREEN, #cmp, #val, LUL_COLOR_RESET);
 
 #ifdef NO_TEST_LOG
@@ -68,18 +68,18 @@ mu_check(check);
   } else {\
     ok_msg_fail(thing, cmp, val);\
   }\
-  printf("%s", lul_error_msg);\
+  printf("    %s", lul_error_msg);\
   mu_check(cmp(thing, val));
 #endif
 
 #define check_msg_fail(thing, cmp)\
-  sprintf(lul_error_msg, "    [%s]: %sfuck(%s:%d) %s%s\n", #thing ,\
+  sprintf(lul_error_msg, "[%s]: %sfuck(%s:%d) %s%s\n", #thing ,\
       LUL_COLOR_RED, __FILE__, __LINE__, #cmp, LUL_COLOR_RESET);\
       if(lul_error_count < 5)\
         strcpy(lul_error_messages[lul_error_count++], lul_error_msg);
 
 #define check_msg_success(thing, cmp)\
-  sprintf(lul_error_msg, "    [%s]: %s%s %s\n", #thing,\
+  sprintf(lul_error_msg, "[%s]: %s%s %s\n", #thing,\
       LUL_COLOR_GREEN, #cmp, LUL_COLOR_RESET);
 
 #ifdef NO_TEST_LOG
@@ -91,7 +91,7 @@ mu_check(check);
   }else{\
     check_msg_fail(thing, cmp);\
   }\
-  printf("%s", lul_error_msg);\
+  printf("    %s", lul_error_msg);\
   mu_check(cmp(thing));
 #endif
 // usefule log tools for debuging

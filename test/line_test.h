@@ -153,7 +153,7 @@ MU_TEST(line_t_test) {
     line_t *src = line_create("1234");
     line_t *dest = line_create("aaa");
     
-    if("should copy '123' to the second offset of 1"){
+    it("should copy '123' to the second offset of 1"){
       line_write_line(dest, src, 2, 0, 3);
       p_s(line_to_string(dest));
       ok(line_to_string(dest), eq_str, "aa123");
