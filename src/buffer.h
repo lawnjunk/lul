@@ -57,7 +57,8 @@ buffer_t *buffer_fill_char(buffer_t *buf, char num);
 buffer_t *buffer_slice(buffer_t *buf, size_t start, size_t end);
 
 // write buffer
-buffer_t *buffer_write_buffer(buffer_t *dest, buffer_t *src, size_t offset, size_t count);
+//buffer_t *buffer_write_buffer(buffer_t *dest, buffer_t *src, size_t offset, size_t count);
+buffer_t *buffer_write_buffer(buffer_t *dest, buffer_t *src, size_t doffset, size_t soffset, size_t count);
 
 // is evil
 bool buffer_is_evil(buffer_t *buf);

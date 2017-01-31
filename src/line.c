@@ -143,7 +143,7 @@ line_t *line_write_line(line_t *dest, line_t *src, unsigned int doffset, unsigne
   if(count > src->length - 1)
     return line_trouble_on(dest, "count two large");
   buffer_t *slice = buffer_slice(src->buffer, soffset, src->length);
-  buffer_write_buffer(dest->buffer, slice, doffset, count);
+  buffer_write_buffer(dest->buffer, slice, doffset, 0, count);
   dest->length = doffset + slice->length;
   l_free(slice, buffer);
   return dest;

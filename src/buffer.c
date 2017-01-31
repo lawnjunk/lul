@@ -233,14 +233,16 @@ buffer_t *buffer_write_string(buffer_t *buf, char *text, size_t offset){
   return buf;
 }
 
-buffer_t *buffer_write_buffer(buffer_t *dest, buffer_t *src, size_t offset, size_t count){
+buffer_t *buffer_write_buffer(buffer_t *dest, buffer_t *src, size_t doffset, size_t soffset, size_t count){
   debug("buffer_write_buffer");
   if(buffer_is_evil(dest)) return dest;
   if(buffer_is_evil(src))
     return buffer_trouble_on(dest, "src buffer was evil");
-  if(offset > (dest->length - count))
+  if(doffset >= (dest->length - count))
     return buffer_trouble_on(dest, "not enough room");
-  memcpy((dest->data) + offset, src->data, count);
+  if(soffset >= (src->length - count)) 
+    return buffer_trouble_on(dest, "src dont have that much data");
+  memcpy((dest->data) + doffset, src->data + soffset, count);
   return dest;
 }
 

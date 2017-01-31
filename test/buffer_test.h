@@ -16,7 +16,7 @@ MU_TEST(buffer_t_test) {
     it("the buf should be null affter freeing it"){
       buffer_t *buf = buffer_create(10);
       l_free(buf, buffer);
-      should("buf should be null", is_null(buf));
+      check(buf, is_null);
     }
   }
 
@@ -125,27 +125,38 @@ MU_TEST(buffer_t_test) {
 
   describe("TEST buffer_write_char"){
     buffer_t *buf = buffer_create(5);
-    buf = buffer_write_char(buf,'a' , 0);
-    should("write 11 at index 0", eq_char(buf->data[0], 'a'));
-    should("buffer should not be evil" , !flub_is_evil(buf->err));
-    buf = buffer_write_char(buf, 'b', 2);
-    should("write 22 at index 2", eq_char(buf->data[2], 'b'));
-    should("buffer should not be evil" , !flub_is_evil(buf->err));
-    buf = buffer_write_char(buf, 'c', 6);
-    should("buffer should be evil" , flub_is_evil(buf->err));
+    it("should write a char to the correct offset"){
+      buf = buffer_write_char(buf, 'a', 0);
+      ok(buf->data[0], eq_char, 'a');
+      buf = buffer_write_char(buf,'b', 2);
+      ok(buf->data[2], eq_char, 'b');
+      check(buf, !buffer_is_evil);
+    }
+
+    it("should return an evil buf on write to buf->length"){
+      buf = buffer_write_char(buf, 'c', 5);
+      check(buf, buffer_is_evil);
+    }
+
     l_free(buf, buffer);
   }
 
   describe("TEST buffer_write_int8"){
     buffer_t *buf = buffer_create(5);
-    buf = buffer_write_int8(buf, 11, 0);
-    should("write 11 at index 0", eq_int8(buf->data[0], 11));
-    should("buffer should not be evil" , !flub_is_evil(buf->err));
-    buf = buffer_write_int8(buf, 22, 2);
-    should("write 22 at index 2", eq_int8(buf->data[2], 22));
-    should("buffer should not be evil" , !flub_is_evil(buf->err));
-    buf = buffer_write_int8(buf, 100, 6);
-    should("buffer should be evil" , flub_is_evil(buf->err));
+
+    it("should write a int to the correct offset"){
+      buf = buffer_write_int8(buf, 11, 0);
+      ok(buf->data[0], eq_int8, 11);
+      buf = buffer_write_int8(buf, 22, 2);
+      ok(buf->data[2], eq_int8, 22);
+      check(buf, !buffer_is_evil);
+    }
+
+    it("should return an evil buf on out of bounds write"){
+      buf = buffer_write_int8(buf, 100, 6);
+      check(buf, buffer_is_evil);
+    }
+
     l_free(buf, buffer);
   }
 
@@ -157,22 +168,12 @@ MU_TEST(buffer_t_test) {
     buf->data[3] = 0xdd;
     buf->data[4] = 0x77;
 
-    uint16_t result;
-    result = buffer_read_uint16_LE(buf, 0);
-    should("result should equal 0xeeff", eq_uint16(result , 0xeeff));
-    should("buf should no be evil", !buffer_is_evil(buf));
-
-    result = buffer_read_uint16_LE(buf, 1);
-    should("result should equal 0xaaee", eq_uint16(result , 0xaaee));
-    should("buf should no be evil", !buffer_is_evil(buf));
-
-    result = buffer_read_int16_LE(buf, 3);
-    should("result should equal 0x77dd", eq_uint16(result , 0x77dd));
-    should("buf should not be evil", !buffer_is_evil(buf));
-
-    result = buffer_read_uint16_LE(buf, 4);
-    should("result should equal 0x77dd", eq_uint16(result , 0x77dd));
-    should("buf should be evil", buffer_is_evil(buf));
+    it("should return the correct LE number"){
+      ok(buffer_read_uint16_LE(buf, 0), eq_uint16, 0xeeff);
+      ok(buffer_read_uint16_LE(buf, 1), eq_uint16, 0xaaee);
+      ok(buffer_read_uint16_LE(buf, 3), eq_uint16, 0x77dd);
+      ok(buffer_read_uint16_LE(buf, 4), eq_uint16, 0x77dd);
+    }
 
     l_free(buf, buffer);
   }
@@ -185,22 +186,17 @@ MU_TEST(buffer_t_test) {
     buf->data[3] = 0xdd;
     buf->data[4] = 0x77;
 
-    int16_t result;
-    result = buffer_read_int16_LE(buf, 0);
-    should("result should equal 0xeeff", eq_int16(result, 0xeeff));
-    should("buf should no be evil", !buffer_is_evil(buf));
+    it("should return the correct LE number"){
+      ok(buffer_read_int16_LE(buf, 0), eq_int16, 0xeeff);
+      ok(buffer_read_int16_LE(buf, 1), eq_int16, 0xaaee);
+      ok(buffer_read_int16_LE(buf, 3), eq_int16, 0x77dd);
+      check(buf, !buffer_is_evil);
+    }
 
-    result = buffer_read_int16_LE(buf, 1);
-    should("result should equal 0xaaee", eq_int16(result, 0xaaee));
-    should("buf should no be evil", !buffer_is_evil(buf));
-
-    result = buffer_read_int16_LE(buf, 3);
-    should("result should equal 0x77dd", eq_int16(result, 0x77dd));
-    should("buf should not be evil", !buffer_is_evil(buf));
-
-    result = buffer_read_int16_LE(buf, 4);
-    should("result should equal 0x77dd", eq_int16(result, 0x77dd));
-    should("buf should be evil", buffer_is_evil(buf));
+    it("buffer should be evil on read out of bounds"){
+      ok(buffer_read_int16_LE(buf, 4), eq_int16, 0x77dd);
+      check(buf, buffer_is_evil);
+    }
 
     l_free(buf, buffer);
   }
@@ -213,22 +209,17 @@ MU_TEST(buffer_t_test) {
     buf->data[3] = 0xdd;
     buf->data[4] = 0x77;
 
-    uint16_t result;
-    result = buffer_read_uint16_BE(buf, 0);
-    should("result should equal 0xffee", eq_uint16(result, 0xffee));
-    should("buf should no be evil", !buffer_is_evil(buf));
+    it("should return the correct BE number"){
+      ok(buffer_read_uint16_BE(buf, 0), eq_uint16, 0xffee);
+      ok(buffer_read_uint16_BE(buf, 1), eq_uint16, 0xeeaa);
+      ok(buffer_read_uint16_BE(buf, 3), eq_uint16, 0xdd77);
+      check(buf, !buffer_is_evil);
+    }
 
-    result = buffer_read_uint16_BE(buf, 1);
-    should("result should equal 0xeeaa", eq_uint16(result, 0xeeaa));
-    should("buf should no be evil", !buffer_is_evil(buf));
-
-    result = buffer_read_uint16_BE(buf, 3);
-    should("result should equal 0xdd77", eq_uint16(result, 0xdd77));
-    should("buf should not be evil", !buffer_is_evil(buf));
-
-    result = buffer_read_uint16_BE(buf, 4);
-    should("result should equal 0xdd77", eq_uint16(result, 0xdd77));
-    should("buf should be evil", buffer_is_evil(buf));
+    it("buffer should be evil on read out of bounds"){
+      ok(buffer_read_uint16_BE(buf, 4), eq_uint16, 0xdd77);
+      check(buf, buffer_is_evil);
+    }
 
     l_free(buf, buffer);
   }
@@ -241,47 +232,37 @@ MU_TEST(buffer_t_test) {
     buf->data[3] = 0xdd;
     buf->data[4] = 0x77;
 
-    int16_t result;
-    result = buffer_read_int16_BE(buf, 0);
-    should("result should equal 0xffee", eq_int16(result, 0xffee));
-    should("buf should no be evil", !buffer_is_evil(buf));
+    it("should return the correct BE number"){
+      ok(buffer_read_int16_BE(buf, 0), eq_int16, 0xffee);
+      ok(buffer_read_int16_BE(buf, 1), eq_int16, 0xeeaa);
+      ok(buffer_read_int16_BE(buf, 3), eq_int16, 0xdd77);
+      check(buf, !buffer_is_evil);
+    }
 
-    result = buffer_read_int16_BE(buf, 1);
-    should("result should equal 0xeeaa", eq_int16(result, 0xeeaa));
-    should("buf should no be evil", !buffer_is_evil(buf));
-
-    result = buffer_read_int16_BE(buf, 3);
-    should("result should equal 0xdd77", eq_int16(result, 0xdd77));
-    should("buf should not be evil", !buffer_is_evil(buf));
-
-    result = buffer_read_int16_BE(buf, 4);
-    should("result should equal 0xdd77", eq_int16(result, 0xdd77));
-    should("buf should be evil", buffer_is_evil(buf));
+    it("buffer should be evil on read out of bounds"){
+      ok(buffer_read_int16_BE(buf, 4), eq_int16, 0xdd77);
+      check(buf, buffer_is_evil);
+    }
 
     l_free(buf, buffer);
   }
 
   describe("TEST bufffer_write_uint16_LE"){
     buffer_t *buf = buffer_create(5);
-    buf = buffer_write_int16_LE(buf, (uint16_t) 0xffee, 0);
-    should("buffer_read_uint16_LE at index 0 should be 0xffee",
-        eq_uint16(buffer_read_int16_LE(buf, 0), 0xffee));
-    should("buf should not be evil", !buffer_is_evil(buf));
+    it("should write int16 to valid offset"){
+      buf = buffer_write_int16_LE(buf, (uint16_t) 0xffee, 0);
+      ok(buffer_read_uint16_LE(buf, 0), eq_uint16, 0xffee);
+      buf = buffer_write_int16_LE(buf, (uint16_t) 0xaaff, 3);
+      ok(buffer_read_uint16_LE(buf, 3), eq_uint16, 0xaaff);
+      check(buf, !buffer_is_evil);
+    }
 
-    buf = buffer_write_int16_LE(buf, (uint16_t) 0xaaff, 3);
-    should("buffer_read_uint16_LE at index 3 should be 0xaaff",
-        eq_uint16(buffer_read_int16_LE(buf, 3), 0xaaff));
-    should("buf should not be evil", !buffer_is_evil(buf));
+    it("return evil buffer on write to invalid offset"){
+      buf = buffer_write_int16_LE(buf, (uint16_t) 0x0, 4);
+      check(buf, buffer_is_evil);
+    }
 
-    buf = buffer_write_int16_LE(buf, (uint16_t) 0x0, 4);
-    should("buffer_read_uint16_LE at index 3 should be 0xaaff",
-        eq_uint16(buffer_read_int16_LE(buf, 3), 0xaaff));
-    should("buf should be evil", buffer_is_evil(buf));
-
-    buf = buffer_write_int16_LE(buf, (uint16_t) 0x0, 0);
-    should("buffer_read_uint16_LE at index 3 should be 0xaaff",
-        eq_uint16(buffer_read_int16_LE(buf, 3), 0xaaff));
-    should("buf should be evil", buffer_is_evil(buf));
+    l_free(buf, buffer);
   }
 
   describe("TEST buffer_read_uint32_LE"){
@@ -292,18 +273,18 @@ MU_TEST(buffer_t_test) {
     buf->data[3] = 0xdd;
     buf->data[4] = 0x77;
 
-    uint32_t result;
-    result = buffer_read_uint32_LE(buf, 0);
-    should("result should equal 0xddaaeeff", eq_uint32(result, 0xddaaeeff));
-    should("buf should not be evil", !buffer_is_evil(buf));
+    it("should write uint16 to valid offset"){
+      buf = buffer_write_uint16_LE(buf, (uint16_t) 0xffee, 0);
+      ok(buffer_read_uint16_LE(buf, 0), eq_uint16, 0xffee);
+      buf = buffer_write_uint16_LE(buf, (uint16_t) 0xaaff, 3);
+      ok(buffer_read_uint16_LE(buf, 3), eq_uint16, 0xaaff);
+      check(buf, !buffer_is_evil);
+    }
 
-    result = buffer_read_uint32_LE(buf, 1);
-    should("result should equal 0x77ddaaee", eq_uint32(result, 0x77ddaaee));
-    should("buf should not be evil", !buffer_is_evil(buf));
-
-    result = buffer_read_uint32_LE(buf, 2);
-    should("result should equal 0x77ddaaee", eq_uint32(result, 0x77ddaaee));
-    should("buf should be evil", buffer_is_evil(buf));
+    it("return evil buffer on write to invalid offset"){
+      buf = buffer_write_uint16_LE(buf, (uint16_t) 0x0, 4);
+      check(buf, buffer_is_evil);
+    }
 
     l_free(buf, buffer);
   }
@@ -316,18 +297,16 @@ MU_TEST(buffer_t_test) {
     buf->data[3] = 0xdd;
     buf->data[4] = 0x77;
 
-    int32_t result;
-    result = buffer_read_int32_LE(buf, 0);
-    should("result should equal 0xddaaeeff", eq_int32(result, 0xddaaeeff));
-    should("buf should not be evil", !buffer_is_evil(buf));
+    it("should return the correct LE number"){
+      ok(buffer_read_int32_LE(buf, 0), eq_int16, 0xddaaeeff);
+      ok(buffer_read_int32_LE(buf, 1), eq_int16, 0x77ddaaee);
+      check(buf, !buffer_is_evil);
+    }
 
-    result = buffer_read_int32_LE(buf, 1);
-    should("result should equal 0x77ddaaee", eq_int32(result, 0x77ddaaee));
-    should("buf should not be evil", !buffer_is_evil(buf));
-
-    result = buffer_read_int32_LE(buf, 2);
-    should("result should equal 0x77ddaaee", eq_int32(result, 0x77ddaaee));
-    should("buf should be evil", buffer_is_evil(buf));
+    it("buffer should be evil on read out of bounds"){
+      ok(buffer_read_int32_LE(buf, 2), eq_int16, 0x77ddaaee);
+      check(buf, buffer_is_evil);
+    }
 
     l_free(buf, buffer);
   }
@@ -340,18 +319,16 @@ MU_TEST(buffer_t_test) {
     buf->data[3] = 0xdd;
     buf->data[4] = 0x77;
 
-    uint32_t result;
-    result = buffer_read_uint32_BE(buf, 0);
-    should("result should equal 0xffeeaadd", eq_uint32(result, 0xffeeaadd));
-    should("buf should not be evil", !buffer_is_evil(buf));
+    it("should return the correct BE number"){
+      ok(buffer_read_uint32_BE(buf, 0), eq_uint16, 0xffeeaadd);
+      ok(buffer_read_uint32_BE(buf, 1), eq_uint16, 0xeeaadd77);
+      check(buf, !buffer_is_evil);
+    }
 
-    result = buffer_read_uint32_BE(buf, 1);
-    should("result should equal 0xeeaadd77", eq_uint32(result, 0xeeaadd77));
-    should("buf should not be evil", !buffer_is_evil(buf));
-
-    result = buffer_read_uint32_BE(buf, 2);
-    should("result should equal 0xeeaadd77", eq_uint32(result, 0xeeaadd77));
-    should("buf should be evil", buffer_is_evil(buf));
+    it("buffer should be evil on read out of bounds"){
+      ok(buffer_read_uint32_BE(buf, 2), eq_uint16, 0xeeaadd77);
+      check(buf, buffer_is_evil);
+    }
 
     l_free(buf, buffer);
   }
@@ -364,24 +341,33 @@ MU_TEST(buffer_t_test) {
     buf->data[3] = 0xdd;
     buf->data[4] = 0x77;
 
-    int32_t result;
-    result = buffer_read_int32_BE(buf, 0);
-    should("result should equal 0xffeeaadd", eq_int32(result, 0xffeeaadd));
-    should("buf should not be evil", !buffer_is_evil(buf));
+    it("should return the correct BE number"){
+      ok(buffer_read_int32_BE(buf, 0), eq_int16, 0xffeeaadd);
+      ok(buffer_read_int32_BE(buf, 1), eq_int16, 0xeeaadd77);
+      check(buf, !buffer_is_evil);
+    }
 
-    result = buffer_read_int32_BE(buf, 1);
-    should("result should equal 0xeeaadd77", eq_int32(result, 0xeeaadd77));
-    should("buf should not be evil", !buffer_is_evil(buf));
-
-    result = buffer_read_int32_BE(buf, 2);
-    should("result should equal 0xeeaadd77", eq_int32(result, 0xeeaadd77));
-    should("buf should be evil", buffer_is_evil(buf));
+    it("buffer should be evil on read out of bounds"){
+      ok(buffer_read_int32_BE(buf, 2), eq_int16, 0xeeaadd77);
+      check(buf, buffer_is_evil);
+    }
 
     l_free(buf, buffer);
   }
 
   describe("TEST buffer_write_uint32_LE"){
     buffer_t *buf = buffer_create(5);
+
+    it("should write to a vaild offset"){
+    }
+
+    it("should return an evil buf on write to invalid offset"){
+      buffer_fill_uint8(buf, 0);
+      buffer_write_uint16_LE(buf, 0xaabbccdd, 3);
+      p_ul(buffer_read_uint32_LE(buf, 0));
+      ok(buffer_read_uint32_LE(buf, 0), eq_uint32, 0);
+    }
+
     buf = buffer_write_uint32_LE(buf, (uint32_t) 0xaabbccdd, 3);
     should("buf should be evil", buffer_is_evil(buf));
     for(int i=0; i<buf->length; i++){
@@ -594,7 +580,7 @@ MU_TEST(buffer_t_test) {
     buffer_t *dest = buffer_create(8);
     buffer_t *src = buffer_create(4);
     buffer_write_uint32_BE(src, 0xaabbccdd, 0);
-    dest = buffer_write_buffer(dest, src, 4, src->length);
+    dest = buffer_write_buffer(dest, src, 4, 0, src->length);
     should("dest[4] should be 0xaa",
         eq_uint8(buffer_read_uint8(dest, 4), 0xaa));
     should("dest[5] should be 0xbb",
@@ -605,7 +591,7 @@ MU_TEST(buffer_t_test) {
         eq_uint8(buffer_read_uint8(dest, 7), 0xdd));
 
     flub_trouble_on(dest->err, "for testing");
-    dest = buffer_write_buffer(dest, src, 0, src->length);
+    dest = buffer_write_buffer(dest, src, 0, 0, src->length);
     for(int i=0; i<4; i++){
       should("dest->data at index should be 0x0",
           eq_uint8(buffer_read_uint8(dest, i), 0x0));
@@ -614,7 +600,7 @@ MU_TEST(buffer_t_test) {
     flub_trouble_off(dest->err);
 
     flub_trouble_on(src->err, "for testing");
-    dest = buffer_write_buffer(dest, src, 0, src->length);
+    dest = buffer_write_buffer(dest, src, 0, 0, src->length);
     for(int i=0; i<4; i++){
       should("dest->data at index should be 0x0",
           eq_uint8(buffer_read_uint8(dest, i), 0x0));
@@ -624,7 +610,7 @@ MU_TEST(buffer_t_test) {
     flub_trouble_off(dest->err);
     flub_trouble_off(src->err);
 
-    dest = buffer_write_buffer(dest, src, 5, src->length);
+    dest = buffer_write_buffer(dest, src, 5, 0, src->length);
     should("dest should be evil", buffer_is_evil(dest));
     should("dest[5] should be 0xbb",
         eq_uint8(buffer_read_uint8(dest, 5), 0xbb));
