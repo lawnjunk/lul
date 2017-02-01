@@ -459,32 +459,39 @@ MU_TEST(buffer_t_test) {
 
   describe("TEST buffer_fill_int8"){
     buffer_t *buf = buffer_create(5);
-    buf = buffer_fill_int8(buf, (int8_t) 0xfa);
-    for(int i=0; i<buf->length; i++){
-      ok(buf->data[i], eq_int8,  0xfa);
+    it("should fill a non evil buffer"){
+      buf = buffer_fill_int8(buf, (int8_t) 0xfa);
+      for(int i=0; i<buf->length; i++){
+        ok(buf->data[i], eq_int8,  0xfa);
+      }
     }
 
     // sholdnt be able to over write if buffer is dirty
-    flub_trouble_on(buf->err, "ut oh");
-    buf = buffer_fill_int8(buf, (int8_t) 0x00);
-    for(int i=0; i<buf->length; i++){
-      ok(buf->data[i], eq_int8,  0xfa);
+    it("should not fill an evil buffer"){
+      flub_trouble_on(buf->err, "ut oh");
+      buf = buffer_fill_int8(buf, (int8_t) 0x00);
+      for(int i=0; i<buf->length; i++){
+        ok(buf->data[i], eq_int8,  0xfa);
+      }
     }
     l_free(buf, buffer);
   }
 
   describe("TEST buffer_fill_char"){
     buffer_t *buf = buffer_create(5);
-    buf = buffer_fill_char(buf, 'a');
-    for(int i=0; i<buf->length; i++){
-      ok(buf->data[i], eq_char,  'a');
+    it("should fill a non evil buffer"){
+      buf = buffer_fill_char(buf, 'a');
+      for(int i=0; i<buf->length; i++){
+        ok(buf->data[i], eq_char,  'a');
+      }
     }
 
-    // sholdnt be able to over write if buffer is dirty
-    flub_trouble_on(buf->err, "ut oh");
-    buf = buffer_fill_char(buf, '\0');
-    for(int i=0; i<buf->length; i++){
-      ok(buf->data[i], eq_char,  'a');
+    it("should not fill an evil buffer"){
+      flub_trouble_on(buf->err, "ut oh");
+      buf = buffer_fill_char(buf, '\0');
+      for(int i=0; i<buf->length; i++){
+        ok(buf->data[i], eq_char,  'a');
+      }
     }
     l_free(buf, buffer);
   }
@@ -496,33 +503,37 @@ MU_TEST(buffer_t_test) {
     buf->data[2] = 0xcc;
     buf->data[3] = 0xdd;
     buf->data[4] = 0xee;
-
     buffer_t *slice = buffer_slice(buf, 2, 5);
-    ok(slice->length, eq_size, 3);
-    ok(slice->data[0], eq_uint8, 0xcc);
-    ok(slice->data[1], eq_uint8, 0xdd);
-    ok(slice->data[2], eq_uint8, 0xee);
 
-    slice = buffer_write_uint8(slice, 0x3, 0);
-    ok(slice->data[0], eq_uint8, 0x3);
-    ok(buf->data[2], eq_uint8, 0x3);
+    it("should create a slice with valid offset"){
+      ok(slice->length, eq_size, 3);
+      ok(slice->data[0], eq_uint8, 0xcc);
+      ok(slice->data[1], eq_uint8, 0xdd);
+      ok(slice->data[2], eq_uint8, 0xee);
 
-    flub_trouble_on(buf->err, "bad news");
-    buffer_t *evil_slice = buffer_slice(buf, 0, 4);
-    check(evil_slice, buffer_is_evil);
-    ok(evil_slice->length, eq_size, 0);
+      slice = buffer_write_uint8(slice, 0x3, 0);
+      ok(slice->data[0], eq_uint8, 0x3);
+      ok(buf->data[2], eq_uint8, 0x3);
+    }
 
-    buffer_t *evil_start = buffer_slice(buf, 15, 16);
-    check(evil_slice, buffer_is_evil);
-    ok(evil_start->length, eq_size, 0);
+    it("should not create a slice from an evil buffer"){
+      flub_trouble_on(buf->err, "bad news");
+      buffer_t *evil_slice = buffer_slice(buf, 0, 4);
+      check(evil_slice, buffer_is_evil);
+      ok(evil_slice->length, eq_size, 0);
 
-    buffer_t *evil_end = buffer_slice(buf, 2, 1);
-    check(buf, buffer_is_evil);
-    ok(evil_start->length, eq_size, 0);
+      buffer_t *evil_start = buffer_slice(buf, 15, 16);
+      check(evil_slice, buffer_is_evil);
+      ok(evil_start->length, eq_size, 0);
 
-    l_free(evil_start, buffer);
-    l_free(evil_slice, buffer);
-    l_free(evil_end, buffer);
+      buffer_t *evil_end = buffer_slice(buf, 2, 1);
+      check(buf, buffer_is_evil);
+      ok(evil_start->length, eq_size, 0);
+      l_free(evil_start, buffer);
+      l_free(evil_slice, buffer);
+      l_free(evil_end, buffer);
+    }
+
     l_free(slice, buffer);
     l_free(buf, buffer);
   }
@@ -535,7 +546,6 @@ MU_TEST(buffer_t_test) {
       buffer_fill_uint8(dest, 0);
       buffer_write_uint32_BE(src, 0xaabbccdd, 1);
       dest = buffer_write_buffer(dest, src, 4, 1, 3);
-      p_s(dest->err->msg);
       check(dest, !buffer_is_evil);
       ok(buffer_read_uint8(dest, 4), eq_uint8, 0xaa);
       ok(buffer_read_uint8(dest, 5), eq_uint8, 0xbb);
@@ -606,18 +616,20 @@ MU_TEST(buffer_t_test) {
     it("should fill the buffer with '[0, 1, 2, 3]"){
       ok(buf->length, eq_size, 4);
       range(i, 0, 4) {
-        ok(buffer_read_uint8(buf, i), eq_uint8, data[i]);
+        ok(buffer_read_int8(buf, i), eq_int8, data[i]);
       }
     }
     l_free(buf, buffer);
   }
 
   describe("TEST buffer_from_uint8_array"){
-    buffer_t *buf = buffer_from_uint8_array((uint8_t []) {0, 1, 2, 3}, 4);
-    should("buf should have a length of 4", eq_size(buf->length, 4));
-    for(int i=0;i<4;i++){
-      should("have the right data at index",
-          eq_char(buffer_read_uint8(buf, i), i));
+    uint8_t *data = (uint8_t []) {0, 1, 2, 3};
+    buffer_t *buf = buffer_from_uint8_array(data, 4);
+    it("should fill the buffer with '[0, 1, 2, 3]"){
+      ok(buf->length, eq_size, 4);
+      range(i, 0, 4) {
+        ok(buffer_read_uint8(buf, i), eq_uint8, data[i]);
+      }
     }
   }
 }
