@@ -94,6 +94,9 @@ mu_check(check);
   printf("    %s", lul_error_msg);\
   mu_check(cmp(thing));
 #endif
+
+#define truthy(val) check(val, (bool))
+
 // usefule log tools for debuging
 #define p_i(x) printf(":{{ %s }}: %d\n", #x, x);
 #define p_c(x) printf(":{{ %s }}: %c\n", #x, x);

@@ -32,6 +32,10 @@ char *line_to_string(line_t *line){
 }
 
 char line_read_char(line_t *line, unsigned int offset){
+  if(offset > line->length){
+    line_trouble_on(line, "out of bounds");
+    return '\0';
+  }
   return buffer_read_char(line->buffer, offset);
 }
 
@@ -83,6 +87,7 @@ line_t *line_delete_char(line_t *line, unsigned int offset){
 
 line_t *line_create(char *text){
   debug("line_create");
+  if(is_null(text)) text = "";
   line_t *result = (line_t *) malloc(sizeof(line_t));  
   result->buffer = buffer_create(LINE_WITH);
   buffer_write_string(result->buffer, text, 0);

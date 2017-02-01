@@ -15,8 +15,10 @@ typedef enum {
 #define make_read8(name, type) \
   type name(buffer_t *buf, size_t offset){ \
     debug(#name);\
-    if(offset > buf->length -1) \
+    if(offset > buf->length -1){ \
       buffer_trouble_on(buf, "access out of bounds");\
+      offset = buf->length -1;\
+    }\
     return (type) buf->data[offset];\
   }
 
