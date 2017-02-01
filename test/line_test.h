@@ -86,14 +86,11 @@ MU_TEST(line_t_test) {
     it("should append a char"){
       ok(line->length, eq_uint, 3);
       char *str;
-      ok((str = line_to_string(line)), eq_str, "sha");
-      free(str);
+      ok((str = line_to_string(line)), eq_str, "sha"); free(str);
       line_append_char(line, 'r');
-      ok((str = line_to_string(line)), eq_str, "shar");
-      free(str);
+      ok((str = line_to_string(line)), eq_str, "shar"); free(str);
       line_append_char(line, 'k');
-      ok((str = line_to_string(line)), eq_str, "shark");
-      free(str);
+      ok((str = line_to_string(line)), eq_str, "shark"); free(str);
       ok(line->length, eq_uint, 5);
       check(line, !line_is_evil)
     }
@@ -110,86 +107,94 @@ MU_TEST(line_t_test) {
 
   describe("line_delete_char"){
     line_t *line = line_create("abc");
-    okay(line->length, "should equal 3", line->length == 3);
+    char *result;
 
-    line_delete_char(line, 0);
-    char *result = line_to_string(line);
-    okay(line, "should be able to delete first index", eq_str(result, "bc"));
-    okay(line->length, "should shrink on delete", line->length == 2);
-    okay(line, "should not be evil after delete", !line_is_evil(line));
+    it("should not delete from an empy line"){
+    }
 
-    line_delete_char(line, 1);
-    result = line_to_string(line);
-    okay(line->length, "should equal 1", line->length == 1);
-    okay(line, "should be 'b'", eq_str(result, "b"));
-    okay(line, "should not be evil", !line_is_evil(line));
+    it("should delete a char at a valid offset"){
+      ok((result = line_to_string(line)), eq_str, "abc"); free(result);
 
-    line_delete_char(line, 0);
-    result = line_to_string(line);
-    okay(line->length, "should equal 0", line->length == 0);
-    okay(line, "should be ''", eq_str(result, ""));
+      line_delete_char(line, 0);
+      ok((result = line_to_string(line)), eq_str, "bc"); free(result);
 
-    okay(wat, "cmp '' ''", eq_str("", ""));
-    okay(line, "should not be evil", !line_is_evil(line));
+      line_delete_char(line, 1);
+      ok((result = line_to_string(line)), eq_str, "b"); free(result);
 
-    line_delete_char(line, 0);
-    okay(line, "should be evil", line_is_evil(line));
-    okay(line->length, "should equal 0", line->length == 0);
-    line_delete_char(line, 10);
-    okay(line, "should be evil", line_is_evil(line));
-    okay(line->length, "should equal 0", line->length == 0);
-    free(result);
+      line_delete_char(line, 0);
+      ok((result = line_to_string(line)), eq_str, ""); free(result);
+
+      check(line, !line_is_evil);
+    }
+
+    it("should return an evil line if deleteing from an empty line"){
+      line_delete_char(line, 0);
+      ok((result = line_to_string(line)), eq_str, ""); free(result);
+      check(line, line_is_evil);
+    }
+
     l_free(line, line);
   }
 
   describe("line_insert_char"){
     line_t *line = line_create("booya!");
+    char *text;
+    it("should insert a char at a vaild index"){
+      ok((text = line_to_string(line)), eq_str, "booya!"); free(text);
+      line_insert_char(line, '!', 0);
+      ok((text = line_to_string(line)), eq_str, "!booya!"); free(text);
+      line_insert_char(line, '!', 4);
+      ok((text = line_to_string(line)), eq_str, "!boo!ya!"); free(text);
+      check(line, !line_is_evil);
+    }
 
-    line_insert_char(line, '!', 0);
-    char *text = line_to_string(line);
-    okay(line, "can insert at 0", eq_str(text, "!booya!"));
+    it("should not write to a invalid index"){
+      line_insert_char(line, '!', 100);
+      ok((text = line_to_string(line)), eq_str, "!boo!ya!"); free(text);
+      check(line, line_is_evil);
+    }
 
-    line_insert_char(line, '!', 2);
-    text = line_to_string(line);
-    okay(line, "can insert at 2", eq_str(text, "!b!ooya!"));
+    it("should not write to an evil string"){
+      line_insert_char(line, '!', 0);
+      ok((text = line_to_string(line)), eq_str, "!boo!ya!"); free(text);
+      check(line, line_is_evil);
+    }
 
-    line_insert_char(line, 'a', line->length );
-    text = line_to_string(line);
-    okay(line, "can insert at line length", eq_str(text, "!b!ooya!a"));
-    okay(line, "should not be evil", !line_is_evil(line));
 
-    line_insert_char(line, 'a', line->length  + 1);
-    okay(line, "will be evil if try to insert past line length",
-        line_is_evil(line));
-
-    line_insert_char(line, 'a', 0);
-    text = line_to_string(line);
-    okay(line, "will not change the string for evil operations",
-        eq_str(text, "!b!ooya!a"));
-    free(text);
-
-    line_t *no_room = line_create("hello");
-    no_room->size=5;
-    line_insert_char(no_room, 'a', 0);
-    text = line_to_string(no_room);
-    okay(no_room, "will not right to a full string",
-        eq_str(text, "hello"));
-    okay(no_room, "will be evil on insert to full buffer",
-        line_is_evil(no_room));
-    free(text);
+    it("should not write to a line that is full"){
+      line_t *no_room = line_create("hello");
+      no_room->size=5;
+      line_insert_char(no_room, 'a', 0);
+      ok((text = line_to_string(no_room)), eq_str, "hello"); free(text);
+      check(no_room, line_is_evil);
+      l_free(no_room, line);
+    }
 
     l_free(line, line);
-    l_free(no_room, line);
   }
 
   describe("line_write_line"){
     line_t *src = line_create("1234");
     line_t *dest = line_create("aaa");
+    char *text;
 
-    it("should copy '123' to the second offset of 1"){
-      line_write_line(dest, src, 2, 0, 3);
-      p_s(line_to_string(dest));
-      ok(line_to_string(dest), eq_str, "aa123");
+    it("should write with valid doffset and counts"){
+      line_write_line(dest, src, 1, 0, 3);
+      ok((text = line_to_string(dest)), eq_str, "a123"); free(text);
+      check(dest, !line_is_evil);
+      check(src, !line_is_evil);
+    }
+
+    it("should not write with invalid count and src length offset"){
+      line_write_line(dest, src, 0, 0, 5);
+      ok((text = line_to_string(dest)), eq_str, "a123"); free(text);
+      check(dest, line_is_evil);
+    }
+
+    it("it should not write to an evil buffer"){
+      line_write_line(dest, src, 0, 0, 2);
+      ok((text = line_to_string(dest)), eq_str, "a123"); free(text);
+      check(dest, line_is_evil);
     }
   }
 

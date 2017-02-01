@@ -19,7 +19,7 @@ line_t *line_trouble_on(line_t *line, char *msg){
 
 char *line_to_string(line_t *line){
   debug("line_to_string");
-  char *result = (char *) malloc(sizeof(char) * line->length) ;
+  char *result = (char *) malloc(sizeof(char) * line->length);
 
   if(line->length == 0){
     result[0] = '\0';
@@ -72,10 +72,10 @@ line_t *line_delete_char(line_t *line, unsigned int offset){
     return line_trouble_on(line, "can not delete nothing");
   if(offset > line->length - 1)
     return line_trouble_on(line, "out of bounds");
-  memmove(line->buffer->data + offset, line->buffer->data + offset + 1, line->length - offset + 1);
-
-  if (line->length > 0)
+  if(line->length > 0){
+    memmove(line->buffer->data + offset, line->buffer->data + offset + 1, line->length - offset + 1);
     line->length--;
+  }
   return line;
 }
 
