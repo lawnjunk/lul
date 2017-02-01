@@ -36,7 +36,7 @@ MU_TEST(flub_t_test) {
       flub_t *err = flub_create("a bit of a byte");
       flub_trouble_off(err);
       truthy(!err->trouble);
-      should("turn truble off",  !flub_is_evil(err));
+      check(err, !flub_is_evil);
       flub_free(err);
     }
   }
