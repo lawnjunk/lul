@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <time.h>
+#include <uv.h>
 
 // all of lul's headers 
 // hopefully this will help in not having any dependency loops
@@ -22,6 +23,7 @@
 #include "line.h"
 #include "doc.h"
 #include "cursor.h"
+#include "file_io.h"
 
 // memory management macro
 // l_free is used to force vars to be assined NULL after calling

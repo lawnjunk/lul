@@ -1,5 +1,4 @@
 #include "test.h"
-#include "cursor.h"
 
 MU_TEST(doc_t_test) {
   describe("doc_create"){

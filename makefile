@@ -1,10 +1,10 @@
 P = run_test 
-LIBS = 
+LIBS = -luv
 CFLAGS = -Wall -g --coverage -O0
 INCLUDE = -I ./src/ -I ./test
 OBJECTS = ./src/flub.o ./src/buffer.o \
 					./src/line.o ./src/doc.o \
-					./src/cursor.o
+					./src/cursor.o ./src/file_io.o
 
 # build and run tests
 t: clean b
