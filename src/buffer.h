@@ -46,7 +46,7 @@ buffer_t *buffer_write_int32_BE(buffer_t *buf, int32_t value, size_t offset);
 // strings
 buffer_t *buffer_write_string(buffer_t *buf, char *str, size_t offset);
 char *buffer_read_string(buffer_t *buf, size_t start, size_t end);
-char *to_string(buffer_t *buf);
+char *buffer_to_string(buffer_t *buf);
 
 // buffer_fill
 buffer_t *buffer_fill_uint8(buffer_t *buf, uint8_t num);
