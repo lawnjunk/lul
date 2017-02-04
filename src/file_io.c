@@ -24,7 +24,6 @@ action_node_t *action_node_all_free(action_node_t *node){
     puts("fuu");
     return action_node_all_free(node->next);
   }
-  puts("bing ing");
   free(node);
   return NULL;;
 }
@@ -50,44 +49,39 @@ file_context_t *file_context_free(file_context_t *ctx){
   return NULL;
 }
 
-void file_fail_cb(uv_fs_t *req){
-
-}
-
 
 void file_open_cb(uv_fs_t *req){
   puts("file_open_cb");
   /*action_node_free_all(ctx->next);*/
-  if(req->result < 0){ // error 
-    file_fail_cb(req);
+  file_context_t *ctx = req_get_ctx(req);
+  if(req->result < 0){ // error
+    file_fail(ctx);
     return;
   }
-
-  file_context_t *ctx = req_get_ctx(req);
 
   action_node_t *last = ctx->next;
   ctx->next = last->next;
   action_node_free(last);
 
   if(is_null(ctx->next) || is_null(ctx->next->action)){
-    file_fail_cb(req);
+    file_fail(ctx);
     return;
   }
 
   ctx->file_number = req->result;
   uv_fs_req_cleanup(req);
   ctx->next->action(ctx);
-  
+
 }
 
 void file_fstat_cb(uv_fs_t *req){
   puts("file_fstat_cb");
-  if(req->result < 0){ // error 
-    file_fail_cb(req);
+  file_context_t *ctx = req_get_ctx(req);
+  if(req->result < 0){ // error
+    file_fail(ctx);
     return;
   }
 
-  file_context_t *ctx = req_get_ctx(req);
   ctx->statbuf = req->statbuf;
 
   action_node_t *last = ctx->next;
@@ -102,8 +96,30 @@ void file_fstat_cb(uv_fs_t *req){
 void file_read_cb(uv_fs_t *req){
   puts("file_read_cb");
   file_context_t *ctx = req_get_ctx(req);
+  if(req->result < 0){ // error
+    file_fail(ctx);
+    return;
+  }
 
-  printf("booya len: %zu\n", ctx->buf.len); 
+  printf("booya len: %zu\n", ctx->buf.len);
+  action_node_t *last = ctx->next;
+  ctx->next = last->next;
+  action_node_free(last);
+  // clean req
+  uv_fs_req_cleanup(req);
+  // run next action
+  ctx->next->action(ctx);
+  // run next action
+}
+
+void file_write_cb(uv_fs_t *req){
+  puts("file_write_cb");
+  file_context_t *ctx = req_get_ctx(req);
+  if(req->result < 0){ // error
+    file_fail(ctx);
+    return;
+  }
+
   action_node_t *last = ctx->next;
   ctx->next = last->next;
   action_node_free(last);
@@ -116,14 +132,14 @@ void file_read_cb(uv_fs_t *req){
 
 void file_close_cb(uv_fs_t *req){
   puts("file_open_cb");
-  /*action_node_free_all(ctx->next);*/
-  if(req->result < 0){ // error 
-    file_fail_cb(req);
+
+  file_context_t *ctx = req_get_ctx(req);
+  if(req->result < 0){ // error
+    file_fail(ctx);
     return;
   }
 
   // get context
-  file_context_t *ctx = req_get_ctx(req);
   // fetch next action
   action_node_t *last = ctx->next;
   ctx->next = last->next;
@@ -138,7 +154,7 @@ void file_close_cb(uv_fs_t *req){
 
 void file_open(file_context_t *ctx){
   puts("file_open");
-  uv_fs_open(uv_default_loop(), &ctx->file_req, ctx->path, ctx->flags, ctx->mode, 
+  uv_fs_open(uv_default_loop(), &ctx->file_req, ctx->path, ctx->flags, ctx->mode,
       file_open_cb);
 }
 
@@ -157,6 +173,9 @@ void file_fail(file_context_t *ctx){
 
 void file_write(file_context_t *ctx){
   puts("file_write");
+  printf("CHAR AT 0 %c\n", ctx->buf.base[0]);
+  uv_fs_write(uv_default_loop(), &ctx->file_req, ctx->file_number, &ctx->buf,
+      ctx->buf.len , 1, file_write_cb);
 }
 
 void file_fstat(file_context_t *ctx){
@@ -183,11 +202,19 @@ void file_respond_buffer(file_context_t *ctx){
   file_context_free(ctx);
 }
 
+void file_respond_write(file_context_t *ctx){
+  puts("file_respond_write");
+
+  ctx->done(false, NULL);
+
+  file_context_free(ctx);
+}
+
 void file_read_buffer(char *path, file_done_cb done){
   puts("file_read_buffer");
   // open file
-  // fstat 
-  // read 
+  // fstat
+  // read
   // close && respind
   file_context_t *ctx = file_context_create();
   ctx->path = path;
@@ -198,8 +225,34 @@ void file_read_buffer(char *path, file_done_cb done){
   ctx->next = action_append(&file_open,
       action_append(&file_fstat,
         action_append(&file_read,
-          action_append(&file_close, 
+          action_append(&file_close,
             action_append(&file_respond_buffer, NULL)))));
+
+  ctx->next->action(ctx);
+}
+
+void file_write_buffer(char *path, buffer_t *buf, file_done_cb done){
+  puts("file_read_buffer");
+  // open file
+  // fstat
+  // read
+  // close && respind
+  file_context_t *ctx = file_context_create();
+  ctx->path = path;
+  ctx->done = done;
+  ctx->file_req.data = ctx;
+  ctx->flags = O_WRONLY | O_CREAT;
+  ctx->mode = 0644;
+
+  ctx->buf.base = malloc(sizeof(char) * buf->length);
+  ctx->buf.len = buf->length;
+  memcpy(ctx->buf.base, buf->data, buf->length);
+
+
+  ctx->next = action_append(&file_open,
+      action_append(&file_write,
+        action_append(&file_close,
+         action_append(&file_respond_write, NULL))));
 
   ctx->next->action(ctx);
 }
