@@ -23,9 +23,21 @@ void on_fail(buffer_t *buf){
   }
 }
 
+void test_on_write(flub_t *err){
+  if(flub_is_evil(err))
+    puts ("SHIZ it hit here");
+  else
+    printf("booye\n");
+}
+
 MU_TEST(file_io_test){
   describe("it should run z tests"){
     file_read_buffer("./test/test_data.txt", on_read);
     file_read_buffer("./nope.c", on_fail);
+
+    buffer_t *temp_data = buffer_from_char_array("this is a test");
+    puts("\\nn");
+    file_write_buffer("./test_file.txt", temp_data, test_on_write);
+
   }
 }
