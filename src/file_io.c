@@ -1,157 +1,143 @@
 #include "tools.h"
+#include "file_io.h"
 
-#define fs_result_is_evil(req) (req->result < 0)
+#define req_get_ctx(req) (file_context_t *) req->data
 
-static void file_read_buffer_open(uv_fs_t *);
-static void file_read_buffer_fstat(uv_fs_t *);
-static void file_read_buffer_read(uv_fs_t *);
-static void file_read_buffer_fail(uv_fs_t *);
-static void file_read_buffer_close(uv_fs_t *);
-static void file_write_buffer_on_open(uv_fs_t *);
-static void file_write_buffer_on_write(uv_fs_t *);
-static void file_write_buffer_on_fail(uv_fs_t *);
-static void file_write_buffer_on_close(uv_fs_t *);
-static file_context_t *file_context_create(void);
-static file_context_t *file_context_free(file_context_t *ctx);
-
-#define req_get_ctx(req, name)\
-  file_context_t *name = (file_context_t *) req->data;
-
-void file_write_buffer(char *path, buffer_t *buf, file_write_buffer_cb cb){
-  puts("hit file_write_buffer");
-  file_context_t *ctx = file_context_create();
-  ctx->file_write_buffer_done = cb;
-  ctx->buf = uv_buf_init("hello", 5);
-  puts(path);
-  uv_fs_open(uv_default_loop(), &ctx->file_req, path, O_RDWR | O_CREAT, 0640, file_write_buffer_on_open);
+action_node_t *action_node_create(file_action action,  action_node_t *next){
+  action_node_t *node = malloc(sizeof(action_node_t));
+  node->action= action;
+  node->next = next;
+  return node;
 }
 
-void file_write_buffer_on_open(uv_fs_t *req){
-  printf("hit file_write_buffer_on_open %lu\n", req->result);
-  if(req->result < 0 ){
-    puts("FUUBAR");
-    file_write_buffer_on_fail(req);
-    return;
+action_node_t *action_node_free_all(action_node_t *node){
+  if(!is_null(node->next)){
+    action_node_free_all(node->next);
   }
-  
-  req_get_ctx(req, ctx);
-  uv_fs_req_cleanup(req);
-  uv_fs_write(uv_default_loop(), &ctx->file_req, ctx->file_id, &ctx->buf, 1, 0, file_write_buffer_on_write);
+  puts("WHAHHAHHHA");
+  free(node);
+  return NULL;;
 }
 
-void file_write_buffer_on_write(uv_fs_t *req){
-  puts("hit file_write_buffer_on_write");
-  if(fs_result_is_evil(req)){
-    file_write_buffer_on_fail(req);
-    return;
-  }
-
-  req_get_ctx(req, ctx);
-  ctx->file_write_buffer_done(flub_create("no bugz"));
-  uv_fs_close(uv_default_loop(), &ctx->file_req, ctx->file_id, file_write_buffer_on_close);
-
-  uv_fs_req_cleanup(req);
-  file_context_free(ctx);
+action_node_t *action_node_free(action_node_t *node){
+  if(!is_null(node))
+    free(node);
+  return NULL;;
 }
 
-void file_write_buffer_on_close(uv_fs_t *req){
-  puts("hit file_write_buffer_on_close");
-  req_get_ctx(req, ctx);
-  ctx->file_write_buffer_done(flub_create(""));
-  uv_fs_req_cleanup(req);
-  file_context_free(ctx);
-};
-
-void file_write_buffer_on_fail(uv_fs_t *req){
-  puts("hit file_write_buffer_on_fail");
-  puts("hit file_write_buffer_fail");
-  req_get_ctx(req, ctx);
-  ctx->file_write_buffer_done(NULL);
-  uv_fs_req_cleanup(req);
-  file_context_free(ctx);
-};
-
-void file_read_buffer(char *path, file_read_buffer_cb cb){
-  file_context_t *ctx = file_context_create();
-  ctx->file_read_buffer_done = cb;
-  
-  uv_fs_open(uv_default_loop(), &ctx->file_req, path, O_RDONLY, S_IRUSR, file_read_buffer_open);
-}
-
-void file_read_buffer_open(uv_fs_t *req){
-  if(fs_result_is_evil(req)){
-    file_read_buffer_fail(req);
-    return;
-  }
- 
-  req_get_ctx(req, ctx);
-  ctx->file_id = req->result;
-  uv_fs_req_cleanup(req);
-  uv_fs_fstat(uv_default_loop(), &ctx->file_req, ctx->file_id, file_read_buffer_fstat);
-}
-
-void file_read_buffer_fstat(uv_fs_t *req){
-  if(fs_result_is_evil(req)){
-    file_read_buffer_fail(req);
-    return;
-  }
-
-  req_get_ctx(req, ctx);
-  size_t buf_len = sizeof(char) * req->statbuf.st_size;
-  char *data = malloc(buf_len);
-  ctx->buf = uv_buf_init(data, buf_len);
-  uv_fs_read(uv_default_loop(), &ctx->file_req, ctx->file_id , &ctx->buf,  1, 0, file_read_buffer_read);
-  uv_fs_req_cleanup(req);
-}
-
-void file_read_buffer_read(uv_fs_t *req){
-  puts("hit file_read_buffer_read");
-  if(fs_result_is_evil(req)){
-    file_read_buffer_fail(req);
-    return;
-  }
-
-  req_get_ctx(req, ctx);
-  printf("ctx->statbuf->st_size %llu\n", ctx->statbuf.st_size);
-  uv_fs_close(uv_default_loop(), &ctx->file_req, ctx->file_id, file_read_buffer_close);
-  uv_fs_req_cleanup(req);
-}
-
-void file_read_buffer_fail(uv_fs_t *req){
-  puts("hit file_read_buffer_fail");
-  req_get_ctx(req, ctx);
-  ctx->file_read_buffer_done(NULL);
-  uv_fs_req_cleanup(req);
-  file_context_free(ctx);
-};
-
-void file_read_buffer_close(uv_fs_t *req){
-  puts("hit file_read_buffer_close");
-  if(fs_result_is_evil(req)){
-    file_read_buffer_fail(req);
-    return;
-  }
-
-  req_get_ctx(req, ctx);
-  ctx->file_read_buffer_done(buffer_from_int8_array((int8_t *) ctx->buf.base, ctx->buf.len));
-
-  uv_fs_req_cleanup(req);
-  file_context_free(ctx);
-}
 
 file_context_t *file_context_create(){
-  file_context_t *result = malloc(sizeof(file_context_t));
-  result->file_req.data = result;
-  return result;
+  file_context_t *ctx = malloc(sizeof(file_context_t));
+  ctx->file_req.data = ctx;
+  return ctx;;
 }
 
 file_context_t *file_context_free(file_context_t *ctx){
-  uv_fs_req_cleanup(&ctx->file_req);
-  if(!is_null(ctx->buf.base))
-    free(ctx->buf.base);
-  free(ctx);
-  ctx = NULL;
-  return ctx;
+  if(!is_null(ctx)){
+    free(ctx);
+  }
+  return NULL;
 }
 
-#undef req_get_ctx
+void file_fail_cb(uv_fs_t *req){
+
+}
+
+
+void file_open_cb(uv_fs_t *req){
+  puts("file_open_cb");
+  /*action_node_free_all(ctx->next);*/
+  if(req->result < 0){ // error 
+    file_fail_cb(req);
+    return;
+  }
+
+  file_context_t *ctx = req_get_ctx(req);
+
+  action_node_t *last = ctx->next;
+  ctx->next = last->next;
+  action_node_free(last);
+
+  if(is_null(ctx->next) || is_null(ctx->next->action)){
+    file_fail_cb(req);
+    return;
+  }
+
+  ctx->file_number = req->result;
+  ctx->next->action(ctx);
+  
+}
+
+void file_fstat_cb(uv_fs_t *req){
+  puts("file_fstat_cb");
+}
+
+void file_read_cb(uv_fs_t *req){
+  puts("file_read_cb");
+}
+
+void file_close_cb(uv_fs_t *req){
+  puts("file_open_cb");
+  /*action_node_free_all(ctx->next);*/
+  if(req->result < 0){ // error 
+    file_fail_cb(req);
+    return;
+  }
+
+  file_context_t *ctx = req_get_ctx(req);
+  // respond to user
+  ctx->done(false, ctx->result);
+
+  // clean up context
+  file_context_free(ctx);
+}
+
+
+
+void file_open(file_context_t *ctx){
+  puts("file_open");
+  uv_fs_open(uv_default_loop(), &ctx->file_req, ctx->path, ctx->flags, ctx->mode, 
+      file_open_cb);
+}
+
+void file_close(file_context_t *ctx){
+  puts("file_close");
+  uv_fs_close(uv_default_loop(), &ctx->file_req, ctx->file_number, file_close_cb);
+}
+
+void file_fail(file_context_t *ctx){
+  puts("file_fail");
+}
+
+void file_write(file_context_t *ctx){
+  puts("file_write");
+}
+
+void file_fstat(file_context_t *ctx){
+  puts("file_fstat");
+  uv_fs_fstat(uv_default_loop(), &ctx->file_req, ctx->file_number, file_fstat_cb);
+
+}
+
+void file_read(file_context_t *ctx){
+  puts("file_read");
+}
+
+void file_read_buffer(char *path, file_done_cb done){
+  puts("file_read_buffer");
+  // open file
+  // fstat 
+  // read 
+  // close && respind
+  file_context_t *ctx = file_context_create();
+  ctx->path = path;
+  ctx->done = done;
+  ctx->file_req.data = ctx;
+  ctx->flags = O_RDONLY;
+  ctx->mode = 0600;
+  ctx->next = action_node_create(&file_open,
+      action_node_create(&file_fstat,
+        action_node_create(&file_close, NULL)));
+
+  ctx->next->action(ctx);
+}
