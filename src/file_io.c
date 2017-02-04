@@ -18,11 +18,13 @@ action_node_t *action_append(file_action action,  action_node_t *next){
   return node;
 }
 
-action_node_t *action_node_free_all(action_node_t *node){
+action_node_t *action_node_all_free(action_node_t *node){
+  if(is_null(node)) return NULL;
   if(!is_null(node->next)){
-    action_node_free_all(node->next);
+    puts("fuu");
+    return action_node_all_free(node->next);
   }
-  puts("WHAHHAHHHA");
+  puts("bing ing");
   free(node);
   return NULL;;
 }
@@ -42,6 +44,7 @@ file_context_t *file_context_create(){
 
 file_context_t *file_context_free(file_context_t *ctx){
   if(!is_null(ctx)){
+    action_node_all_free(ctx->next);
     free(ctx);
   }
   return NULL;
@@ -146,6 +149,10 @@ void file_close(file_context_t *ctx){
 
 void file_fail(file_context_t *ctx){
   puts("file_fail");
+
+  ctx->done(true, NULL);
+
+  file_context_free(ctx);
 }
 
 void file_write(file_context_t *ctx){
@@ -173,7 +180,7 @@ void file_respond_buffer(file_context_t *ctx){
   memcpy(result->data, ctx->buf.base, ctx->buf.len);
   ctx->done(false, result);
 
-
+  file_context_free(ctx);
 }
 
 void file_read_buffer(char *path, file_done_cb done){
