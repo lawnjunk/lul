@@ -2,6 +2,7 @@
 
 void on_read(bool failed,void *buf){
   puts("FUCK YEA HIT ON_READ TEST FILE CALLBACK");
+  ok(buffer_read_char(buf, 0), eq_char, 'P');
 }
 
 void on_fail(bool failed,void *buf){

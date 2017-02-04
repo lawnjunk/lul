@@ -3,7 +3,15 @@
 
 #define req_get_ctx(req) (file_context_t *) req->data
 
-action_node_t *action_node_create(file_action action,  action_node_t *next){
+
+void file_open(file_context_t *ctx);
+void file_close(file_context_t *ctx);
+void file_fail(file_context_t *ctx);
+void file_write(file_context_t *ctx);
+void file_fstat(file_context_t *ctx);
+void file_read(file_context_t *ctx);
+
+action_node_t *action_append(file_action action,  action_node_t *next){
   action_node_t *node = malloc(sizeof(action_node_t));
   node->action= action;
   node->next = next;
@@ -64,16 +72,43 @@ void file_open_cb(uv_fs_t *req){
   }
 
   ctx->file_number = req->result;
+  uv_fs_req_cleanup(req);
   ctx->next->action(ctx);
   
 }
 
 void file_fstat_cb(uv_fs_t *req){
   puts("file_fstat_cb");
+  if(req->result < 0){ // error 
+    file_fail_cb(req);
+    return;
+  }
+
+  file_context_t *ctx = req_get_ctx(req);
+  ctx->statbuf = req->statbuf;
+
+  action_node_t *last = ctx->next;
+  ctx->next = last->next;
+  action_node_free(last);
+
+  uv_fs_req_cleanup(req);
+  ctx->next->action(ctx);
+
 }
 
 void file_read_cb(uv_fs_t *req){
   puts("file_read_cb");
+  file_context_t *ctx = req_get_ctx(req);
+
+  printf("booya len: %zu\n", ctx->buf.len); 
+  action_node_t *last = ctx->next;
+  ctx->next = last->next;
+  action_node_free(last);
+  // clean req
+  uv_fs_req_cleanup(req);
+  // run next action
+  ctx->next->action(ctx);
+  // run next action
 }
 
 void file_close_cb(uv_fs_t *req){
@@ -84,12 +119,16 @@ void file_close_cb(uv_fs_t *req){
     return;
   }
 
+  // get context
   file_context_t *ctx = req_get_ctx(req);
-  // respond to user
-  ctx->done(false, ctx->result);
-
-  // clean up context
-  file_context_free(ctx);
+  // fetch next action
+  action_node_t *last = ctx->next;
+  ctx->next = last->next;
+  action_node_free(last);
+  // clean req
+  uv_fs_req_cleanup(req);
+  // run next action
+  ctx->next->action(ctx);
 }
 
 
@@ -121,6 +160,20 @@ void file_fstat(file_context_t *ctx){
 
 void file_read(file_context_t *ctx){
   puts("file_read");
+  ctx->buf.len = sizeof(char) * ctx->statbuf.st_size;
+  ctx->buf.base = malloc(ctx->buf.len);
+  uv_fs_read(uv_default_loop(), &ctx->file_req, ctx->file_number, &ctx->buf, 1, 0,
+      file_read_cb);
+}
+
+void file_respond_buffer(file_context_t *ctx){
+  puts("file_respond_buffer");
+
+  buffer_t *result = buffer_create(ctx->buf.len);
+  memcpy(result->data, ctx->buf.base, ctx->buf.len);
+  ctx->done(false, result);
+
+
 }
 
 void file_read_buffer(char *path, file_done_cb done){
@@ -135,9 +188,11 @@ void file_read_buffer(char *path, file_done_cb done){
   ctx->file_req.data = ctx;
   ctx->flags = O_RDONLY;
   ctx->mode = 0600;
-  ctx->next = action_node_create(&file_open,
-      action_node_create(&file_fstat,
-        action_node_create(&file_close, NULL)));
+  ctx->next = action_append(&file_open,
+      action_append(&file_fstat,
+        action_append(&file_read,
+          action_append(&file_close, 
+            action_append(&file_respond_buffer, NULL)))));
 
   ctx->next->action(ctx);
 }
