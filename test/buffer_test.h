@@ -7,7 +7,7 @@ MU_TEST(buffer_t_test) {
       ok(buf->length, eq_size, 10);
       check(buf->data, !is_null);
       check(buf, !buffer_is_evil);
-      ok(buf->err->msg, eq_str, "generic buffer error");
+      ok(buf->err.msg, eq_str, "generic buffer error");
       l_free(buf, buffer);
     }
   }
@@ -46,7 +46,7 @@ MU_TEST(buffer_t_test) {
     }
 
     it("should return true if buf->err->trouble == true"){
-      flub_trouble_on(buf->err, "bad news");
+      flub_trouble_on(&buf->err, "bad news");
       check(buf, buffer_is_evil);
     }
 
@@ -468,7 +468,7 @@ MU_TEST(buffer_t_test) {
 
     // sholdnt be able to over write if buffer is dirty
     it("should not fill an evil buffer"){
-      flub_trouble_on(buf->err, "ut oh");
+      flub_trouble_on(&buf->err, "ut oh");
       buf = buffer_fill_int8(buf, (int8_t) 0x00);
       for(int i=0; i<buf->length; i++){
         ok(buf->data[i], eq_int8,  0xfa);
@@ -487,7 +487,7 @@ MU_TEST(buffer_t_test) {
     }
 
     it("should not fill an evil buffer"){
-      flub_trouble_on(buf->err, "ut oh");
+      flub_trouble_on(&buf->err, "ut oh");
       buf = buffer_fill_char(buf, '\0');
       for(int i=0; i<buf->length; i++){
         ok(buf->data[i], eq_char,  'a');
@@ -517,7 +517,7 @@ MU_TEST(buffer_t_test) {
     }
 
     it("should not create a slice from an evil buffer"){
-      flub_trouble_on(buf->err, "bad news");
+      flub_trouble_on(&buf->err, "bad news");
       buffer_t *evil_slice = buffer_slice(buf, 0, 4);
       check(evil_slice, buffer_is_evil);
       ok(evil_slice->length, eq_size, 0);
@@ -554,7 +554,7 @@ MU_TEST(buffer_t_test) {
     }
 
     it("should return evil buf when doffset invalid"){
-      flub_trouble_off(dest->err);
+      flub_trouble_off(&dest->err);
       buffer_fill_uint8(dest, 0);
       buffer_fill_uint8(src, 0);
       buffer_write_uint32_BE(src, 0xaabbccdd, 1);
@@ -569,7 +569,7 @@ MU_TEST(buffer_t_test) {
     }
 
     it("should return evil buf when doffset invalid"){
-      flub_trouble_off(dest->err);
+      flub_trouble_off(&dest->err);
       buffer_fill_uint8(dest, 0);
       buffer_fill_uint8(src, 0);
       buffer_write_uint32_BE(src, 0xaabbccdd, 1);
@@ -582,14 +582,14 @@ MU_TEST(buffer_t_test) {
     }
 
     it("should not write to an evil buffer"){
-      flub_trouble_off(dest->err);
+      flub_trouble_off(&dest->err);
       buffer_fill_uint8(dest, 0);
       buffer_trouble_on(dest, "for testing");
       dest = buffer_write_buffer(dest, src, 0, 0, src->length);
       for(int i=0; i<4; i++){
         ok(buffer_read_uint8(dest, i), eq_uint8, 0);
       }
-      flub_trouble_off(dest->err);
+      flub_trouble_off(&dest->err);
     }
 
     l_free(dest, buffer);

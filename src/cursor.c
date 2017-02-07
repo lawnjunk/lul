@@ -12,7 +12,6 @@ cursor_t *cursor_create(doc_t *doc, unsigned int x, unsigned int y){
 
 cursor_t *cursor_free(cursor_t *cur){
   debug("cursor_free");
-  flub_free(cur->err);
   free(cur);
   cur = NULL;
   return cur;
@@ -31,7 +30,7 @@ bool cursor_is_evil(cursor_t *cur){
 
 cursor_t *cursor_trouble_on(cursor_t *cur, char *msg){
   debug("cursor_trouble_on");
-  flub_trouble_on(cur->err, msg);
+  flub_trouble_on(&cur->err, msg);
   return cur;
 }
 

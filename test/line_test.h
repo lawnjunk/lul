@@ -37,7 +37,7 @@ MU_TEST(line_t_test) {
     }
 
     it("should return ture if its flub is in trouble"){
-      flub_trouble_on(line->err, "");
+      flub_trouble_on(&line->err, "");
       check(line, line_is_evil);
     }
 
