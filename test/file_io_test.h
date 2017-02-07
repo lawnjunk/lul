@@ -17,7 +17,5 @@ MU_TEST(file_io_test){
     printf("wat len: %lu", wat->length);
     file_write_buffer("./goooey_fooey.txt", wat, on_write);
 
-    flub_t err = { .trouble= false, .msg= "hello" };
-
   }
 }

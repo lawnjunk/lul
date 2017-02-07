@@ -41,7 +41,7 @@ MU_TEST(cursor_t_test) {
     }
 
     it("the cursor cannot move up if it is evil"){
-      flub_trouble_on(cur->err, "for testing");
+      flub_trouble_on(&cur->err, "for testing");
       cur->y = 3;
       cursor_move_up(cur);
       ok(cur->y, eq_uint, 3);
@@ -69,7 +69,7 @@ MU_TEST(cursor_t_test) {
     }
 
     it("the cursor cannot move down if it is evil"){
-      flub_trouble_on(cur->err, "for testing");
+      flub_trouble_on(&cur->err, "for testing");
       cur->y = 3;
       cursor_move_down(cur);
       ok(cur->y, eq_uint, 3);
@@ -192,7 +192,7 @@ MU_TEST(cursor_t_test) {
 
       doc_trouble_on(cur->doc, "for testing");
 
-      flub_trouble_off(cur->err);
+      flub_trouble_off(&cur->err);
       check(cur->err, !flub_is_evil);
       check(cur->doc, doc_is_evil);
       cursor_write_char(cur, 'a');
@@ -204,8 +204,8 @@ MU_TEST(cursor_t_test) {
       line_insert_char(cur_line, '\0', 0);
       cur_line->length = 0;
       cur->x = 0;
-      flub_trouble_off(cur->err);
-      flub_trouble_off(cur->doc->err);
+      flub_trouble_off(&cur->err);
+      flub_trouble_off(&cur->doc->err);
       line_trouble_on(cur_line, "hello");
 
       check(cur, !cursor_is_evil);
