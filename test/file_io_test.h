@@ -11,11 +11,13 @@ void on_write(bool failed,void *buf){
 
 MU_TEST(file_io_test){
   describe("it should run z tests"){
-    //file_read_buffer("./makefile", on_read);
+    file_read_buffer("./makefile", on_read);
 
     buffer_t *wat = buffer_from_char_array("hello world");
     printf("wat len: %lu", wat->length);
     file_write_buffer("./goooey_fooey.txt", wat, on_write);
+
+    flub_t err = { .trouble= false, .msg= "hello" };
 
   }
 }

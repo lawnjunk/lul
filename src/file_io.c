@@ -150,8 +150,6 @@ void file_close_cb(uv_fs_t *req){
   ctx->next->action(ctx);
 }
 
-
-
 void file_open(file_context_t *ctx){
   puts("file_open");
   uv_fs_open(uv_default_loop(), &ctx->file_req, ctx->path, ctx->flags, ctx->mode,
@@ -204,18 +202,17 @@ void file_respond_buffer(file_context_t *ctx){
 
 void file_respond_write(file_context_t *ctx){
   puts("file_respond_write");
-
   ctx->done(false, NULL);
-
   file_context_free(ctx);
 }
 
 void file_read_buffer(char *path, file_done_cb done){
   puts("file_read_buffer");
   // open file
-  // fstat
-  // read
-  // close && respind
+  // fstat file
+  // read file
+  // close file
+  // respind
   file_context_t *ctx = file_context_create();
   ctx->path = path;
   ctx->done = done;
@@ -234,9 +231,9 @@ void file_read_buffer(char *path, file_done_cb done){
 void file_write_buffer(char *path, buffer_t *buf, file_done_cb done){
   puts("file_read_buffer");
   // open file
-  // fstat
-  // read
-  // close && respind
+  // write file
+  // close file
+  // respond
   file_context_t *ctx = file_context_create();
   ctx->path = path;
   ctx->done = done;
@@ -247,7 +244,6 @@ void file_write_buffer(char *path, buffer_t *buf, file_done_cb done){
   ctx->buf.base = malloc(sizeof(char) * buf->length);
   ctx->buf.len = buf->length;
   memcpy(ctx->buf.base, buf->data, buf->length);
-
 
   ctx->next = action_append(&file_open,
       action_append(&file_write,
