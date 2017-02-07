@@ -267,7 +267,6 @@ buffer_t *buffer_free(buffer_t *buf){
   if(!buf->is_slice){
     free(buf->data);
   }
-  flub_free(buf->err);
   free(buf);
   buf = NULL;
   return buf;
@@ -280,7 +279,7 @@ bool buffer_is_evil(buffer_t *buf){
 }
 
 buffer_t *buffer_trouble_on(buffer_t *buf, char *msg){
-  flub_trouble_on(buf->err, msg);
+  flub_trouble_on(&buf->err, msg);
   return buf;
 }
 

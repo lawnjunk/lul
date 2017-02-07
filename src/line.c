@@ -13,7 +13,7 @@ bool line_is_evil(line_t *line){
 
 line_t *line_trouble_on(line_t *line, char *msg){
   debug("line_trouble_on");
-  flub_trouble_on(line->err, msg);
+  flub_trouble_on(&line->err, msg);
   return line;
 }
 
@@ -100,7 +100,6 @@ line_t *line_create(char *text){
 line_t *line_free(line_t *line){
   debug("line_free");
   buffer_free(line->buffer);
-  flub_free(line->err);
   free(line);
   line = NULL;
   return line;
