@@ -7,7 +7,7 @@ MU_TEST(line_t_test) {
       ok(line->length, eq_int, 11);
       check(line, !line_is_evil);
       ok(line->size, eq_uint, LINE_WITH);
-      ok(line->buffer->length, eq_size, LINE_WITH);
+      ok(line->buffer.length, eq_size, LINE_WITH);
       l_free(line, line);
     }
 
@@ -16,7 +16,7 @@ MU_TEST(line_t_test) {
       ok(line->length, eq_int, 0);
       check(line, !line_is_evil);
       ok(line->size, eq_uint, LINE_WITH);
-      ok(line->buffer->length, eq_size, LINE_WITH);
+      ok(line->buffer.length, eq_size, LINE_WITH);
       l_free(line, line);
     }
   }

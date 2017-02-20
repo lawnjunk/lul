@@ -18,7 +18,7 @@ struct buffer {
 
 #define line_t struct line
 struct line {
-  buffer_t *buffer;
+  buffer_t buffer;
   flub_t err; 
   unsigned int length; // length of string in buffer
   unsigned int size ;  // amount of bytes allocated for buffer

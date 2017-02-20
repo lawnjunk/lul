@@ -193,9 +193,9 @@ void file_read(file_context_t *ctx){
 void file_respond_buffer(file_context_t *ctx){
   puts("file_respond_buffer");
 
-  buffer_t *result = buffer_create(ctx->buf.len);
-  memcpy(result->data, ctx->buf.base, ctx->buf.len);
-  ctx->done(false, result);
+  buffer_t result = buffer_init(ctx->buf.len);
+  memcpy(result.data, ctx->buf.base, ctx->buf.len);
+  ctx->done(false, &result);
 
   file_context_free(ctx);
 }

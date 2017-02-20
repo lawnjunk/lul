@@ -284,6 +284,7 @@ buffer_t buffer_init(size_t length){
   result.length = length;
   result.err = flub_create("generic buffer error"); // TODO: refacort msgs to macros
   result.is_slice = false;
+  buffer_fill_int8(&result, 0);
   return result;
 }
 
